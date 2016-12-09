@@ -306,7 +306,7 @@ bool AP_GPS_NMEA::_term_complete()
                     make_gps_time(_new_date, _new_time * 10);
                     state.last_gps_time_ms = now;
                     // To-Do: add support for proper reporting of 2D and 3D fix
-                    state.status           = AP_GPS::GPS_OK_FIX_3D;
+                    // state.status           = AP_GPS::GPS_OK_FIX_3D;
                     fill_3d_velocity();
                     break;
                 case _GPS_SENTENCE_GGA:
@@ -317,7 +317,7 @@ bool AP_GPS_NMEA::_term_complete()
                     state.num_sats      = _new_satellite_count;
                     state.hdop          = _new_hdop;
                     // To-Do: add support for proper reporting of 2D and 3D fix
-                    state.status        = AP_GPS::GPS_OK_FIX_3D;
+                    // state.status        = AP_GPS::GPS_OK_FIX_3D;
                     break;
                 case _GPS_SENTENCE_VTG:
                     _last_VTG_ms = now;
@@ -381,6 +381,28 @@ bool AP_GPS_NMEA::_term_complete()
             break;
         case _GPS_SENTENCE_GGA + 6: // Fix data (GGA)
             _gps_data_good = _term[0] > '0';
+            switch(atoi(_term))
+            {
+                case 0:
+                case 3:
+                    state.status = AP_GPS::NO_FIX;
+                    break;
+                case 1:
+                    state.status = AP_GPS::GPS_OK_FIX_2D;
+                    break;
+                case 2:
+                    state.status = AP_GPS::GPS_OK_FIX_3D;
+                    break;
+                case 4:
+                    state.status = AP_GPS::GPS_OK_FIX_3D_RTK;
+                    break;
+                case 5:
+                    state.status = AP_GPS::GPS_OK_FIX_3D_DGPS;
+                    break;
+                default:
+                    state.status = AP_GPS::NO_FIX;
+                    break;
+            }
             break;
         case _GPS_SENTENCE_VTG + 9: // validity (VTG) (we may not see this field)
             _gps_data_good = _term[0] != 'N';

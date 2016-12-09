@@ -844,7 +844,7 @@ AP_GPS_UBLOX::_parse_gps(void)
         if (_buffer.status.fix_status & NAV_STATUS_FIX_VALID) {
             if( (_buffer.status.fix_type == AP_GPS_UBLOX::FIX_3D) &&
                 (_buffer.status.fix_status & AP_GPS_UBLOX::NAV_STATUS_DGPS_USED)) {
-                next_fix = AP_GPS::GPS_OK_FIX_3D_DGPS;
+                next_fix = AP_GPS::GPS_OK_FIX_3D;
             }else if( _buffer.status.fix_type == AP_GPS_UBLOX::FIX_3D) {
                 next_fix = AP_GPS::GPS_OK_FIX_3D;
             }else if (_buffer.status.fix_type == AP_GPS_UBLOX::FIX_2D) {
