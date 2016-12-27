@@ -124,6 +124,7 @@ public:
         k_param_land_repositioning,
         k_param_rangefinder, // rangefinder object
         k_param_fs_ekf_thresh,
+        k_param_gps_fail_check,
         k_param_terrain,
         k_param_acro_rp_expo,
         k_param_throttle_deadzone,
@@ -455,6 +456,8 @@ public:
     AP_Int8         fs_crash_check;
     AP_Float        fs_ekf_thresh;
     AP_Int16        gcs_pid_mask;
+
+    AP_Int8         gps_fail_check;
 
     AP_Int8         throw_motor_start;
     AP_Int8         terrain_follow;

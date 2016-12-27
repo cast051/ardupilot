@@ -309,7 +309,7 @@ private:
         uint8_t ekf                 : 1; // 5   // true if ekf failsafe has occurred
         uint8_t terrain             : 1; // 6   // true if the missing terrain data failsafe has occurred
         uint8_t adsb                : 1; // 7   // true if an adsb related failsafe has occurred
-
+        uint8_t gps                 : 1;        // true if an gps fail stautus happened.
         int8_t radio_counter;            // number of iterations with throttle below throttle_fs_value
 
         uint32_t last_heartbeat_ms;      // the time when the last HEARTBEAT message arrived from a GCS - used for triggering gcs failsafe
@@ -932,6 +932,8 @@ private:
     bool ekf_over_threshold();
     void failsafe_ekf_event();
     void failsafe_ekf_off_event(void);
+    void gps_check_armed();
+    bool gps_overthrottle();
     void esc_calibration_startup_check();
     void esc_calibration_passthrough();
     void esc_calibration_auto();

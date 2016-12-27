@@ -506,6 +506,13 @@ const AP_Param::Info Copter::var_info[] = {
     // @User: Advanced
     GSCALAR(fs_ekf_thresh, "FS_EKF_THRESH",    FS_EKF_THRESHOLD_DEFAULT),
 
+    // @Param: FS_gps_CHECK
+    // @DisplayName: GPS RTK failsafe ENABLED
+    // @Description:
+    // @Values: 0 false, 1 true
+    // @User: Advanced
+    GSCALAR(gps_fail_check, "GPS_FAIL_CHECK",    1),
+
     // @Param: FS_CRASH_CHECK
     // @DisplayName: Crash check enable
     // @Description: This enables automatic crash checking. When enabled the motors will disarm if a crash is detected.
