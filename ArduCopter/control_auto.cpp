@@ -439,7 +439,7 @@ void Copter::auto_circle_movetoedge_start(const Location_Class &circle_center, f
 
     // set circle radius
     if (!is_zero(radius_m)) {
-        circle_nav.set_radius(radius_m * 100.0f);
+        circle_nav.set_radius(radius_m * 10.0f);
     }
 
     // check our distance from edge of circle
