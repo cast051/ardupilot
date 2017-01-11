@@ -437,6 +437,14 @@ private:
 
     // ibject data into all backends
     void inject_data_all(const uint8_t *data, uint16_t len);
+
+    struct {
+        uint32_t lat_error;
+        uint32_t lng_error;
+        uint32_t alt_error;
+    } gps_rtk_error;
+
+    bool _get_init_error_gps_rtk:1;
 };
 
 #define GPS_BAUD_TIME_MS 1200

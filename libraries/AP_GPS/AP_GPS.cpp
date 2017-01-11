@@ -20,6 +20,7 @@
 #include <AP_Notify/AP_Notify.h>
 #include <GCS_MAVLink/GCS.h>
 
+#include <../ArduCopter/Copter.h>
 #include "AP_GPS_NOVA.h"
 #include "AP_GPS_ERB.h"
 #include "AP_GPS_GSOF.h"
@@ -166,6 +167,7 @@ void AP_GPS::init(DataFlash_Class *dataflash, const AP_SerialManager& serial_man
     _port[0] = serial_manager.find_serial(AP_SerialManager::SerialProtocol_GPS, 0);
     _port[1] = serial_manager.find_serial(AP_SerialManager::SerialProtocol_GPS, 1);
     _last_instance_swap_ms = 0;
+    _get_init_error_gps_rtk = false;
 }
 
 // baudrates to try to detect GPSes with
@@ -477,6 +479,28 @@ AP_GPS::update(void)
                 primary_instance = i;
                 _last_instance_swap_ms = now;
                 }
+            }
+            if (copter.motors.armed() && !_get_init_error_gps_rtk && state[1].status == GPS_OK_FIX_3D_RTK)
+            {
+                _get_init_error_gps_rtk = true;
+                gps_rtk_error.lat_error = state[1].location.lat - state[0].location.lat;
+                gps_rtk_error.lng_error = state[1].location.lng - state[0].location.lng;
+                gps_rtk_error.alt_error = state[1].location.alt - state[0].location.alt;
+                char buffer[64];
+                hal.util->snprintf(buffer, sizeof(buffer),
+                 "alt_error is %d",
+                gps_rtk_error.alt_error);
+                GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, buffer);
+            }
+            if (!copter.motors.armed() && _get_init_error_gps_rtk)
+            {
+                _get_init_error_gps_rtk = false;
+            }
+            if (primary_instance == 0 && _get_init_error_gps_rtk)
+            {
+                state[0].location.lat = state[0].location.lat + gps_rtk_error.lat_error;
+                state[0].location.lng = state[0].location.lng + gps_rtk_error.lng_error;
+                state[0].location.alt = state[0].location.alt + gps_rtk_error.alt_error;
             }
         } else {
             primary_instance = 0;
