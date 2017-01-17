@@ -64,7 +64,7 @@ void AC_Circle::init(const Vector3f& center)
     calc_velocities(true);
 
     // set start angle from position
-    init_start_angle(false);
+    init_start_angle(true);
 }
 
 /// init - initialise circle controller setting center using stopping point and projecting out based on the copter's heading
@@ -177,28 +177,32 @@ void AC_Circle::get_closest_point_on_circle(Vector3f &result)
         return;
     }
 
-    // get current position
-    const Vector3f &curr_pos = _inav.get_position();
-
-    // calc vector from current location to circle center
-    Vector2f vec;   // vector from circle center to current location
-    vec.x = (curr_pos.x - _center.x);
-    vec.y = (curr_pos.y - _center.y);
-    float dist = norm(vec.x, vec.y);
-
-    // if current location is exactly at the center of the circle return edge directly behind vehicle
-    if (is_zero(dist)) {
-        result.x = _center.x - _radius * _ahrs.cos_yaw();
-        result.y = _center.y - _radius * _ahrs.sin_yaw();
-        result.z = _center.z;
-        return;
-    }
-
-    // calculate closest point on edge of circle
-    result.x = _center.x + vec.x / dist * _radius;
-    result.y = _center.y + vec.y / dist * _radius;
+    result.x = _center.x - _radius * _ahrs.cos_yaw();
+    result.y = _center.y - _radius * _ahrs.sin_yaw();
     result.z = _center.z;
 }
+    // get current position
+    // const Vector3f &curr_pos = _inav.get_position();
+
+    // calc vector from current location to circle center
+    // Vector2f vec;   // vector from circle center to current location
+    // vec.x = (curr_pos.x - _center.x);
+    // vec.y = (curr_pos.y - _center.y);
+    // float dist = norm(vec.x, vec.y);
+
+    // if current location is exactly at the center of the circle return edge directly behind vehicle
+    // if (is_zero(dist)) {
+    //     result.x = _center.x - _radius * _ahrs.cos_yaw();
+    //     result.y = _center.y - _radius * _ahrs.sin_yaw();
+    //     result.z = _center.z;
+    //     return;
+    // }
+
+    // calculate closest point on edge of circle
+//     result.x = _center.x + vec.x / dist * _radius;
+//     result.y = _center.y + vec.y / dist * _radius;
+//     result.z = _center.z;
+// }
 
 // calc_velocities - calculate angular velocity max and acceleration based on radius and rate
 //      this should be called whenever the radius or rate are changed

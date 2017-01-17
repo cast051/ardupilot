@@ -448,7 +448,7 @@ void Copter::auto_circle_movetoedge_start(const Location_Class &circle_center, f
     float dist_to_edge = (inertial_nav.get_position() - circle_edge_neu).length();
 
     // if more than 3m then fly to edge
-    if (dist_to_edge > 300.0f) {
+    if (dist_to_edge > 20.0f) {
         // set the state to move to the edge of the circle
         auto_mode = Auto_CircleMoveToEdge;
 
@@ -463,16 +463,16 @@ void Copter::auto_circle_movetoedge_start(const Location_Class &circle_center, f
             // failure to set destination can only be because of missing terrain data
             failsafe_terrain_on_event();
         }
-
+        set_auto_yaw_mode(AUTO_YAW_HOLD);
         // if we are outside the circle, point at the edge, otherwise hold yaw
-        const Vector3f &curr_pos = inertial_nav.get_position();
-        float dist_to_center = norm(circle_center_neu.x - curr_pos.x, circle_center_neu.y - curr_pos.y);
-        if (dist_to_center > circle_nav.get_radius() && dist_to_center > 500) {
-            set_auto_yaw_mode(get_default_auto_yaw_mode(false));
-        } else {
+        // const Vector3f &curr_pos = inertial_nav.get_position();
+        // float dist_to_center = norm(circle_center_neu.x - curr_pos.x, circle_center_neu.y - curr_pos.y);
+        // if (dist_to_center > circle_nav.get_radius() && dist_to_center > 500) {
+        //     set_auto_yaw_mode(get_default_auto_yaw_mode(false));
+        // } else {
             // vehicle is within circle so hold yaw to avoid spinning as we move to edge of circle
-            set_auto_yaw_mode(AUTO_YAW_HOLD);
-        }
+            // set_auto_yaw_mode(AUTO_YAW_HOLD);
+        // }
     } else {
         auto_circle_start();
     }
