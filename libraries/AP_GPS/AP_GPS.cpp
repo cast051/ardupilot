@@ -161,7 +161,7 @@ const AP_Param::GroupInfo AP_GPS::var_info[] = {
 void AP_GPS::init(DataFlash_Class *dataflash, const AP_SerialManager& serial_manager)
 {
     _DataFlash = dataflash;
-    primary_instance = 0;
+    primary_instance = 1;
 
     // search for serial ports with gps protocol
     _port[0] = serial_manager.find_serial(AP_SerialManager::SerialProtocol_GPS, 0);
@@ -452,35 +452,35 @@ AP_GPS::update(void)
         if (state[i].status != NO_GPS) {
             num_instances = i+1;
         }
-        if (_auto_switch) {            
+        if (_auto_switch && copter.motors.armed()) {
             if (i == primary_instance) {
                 continue;
             }
-            if (state[i].status > state[primary_instance].status) {
+            if (state[0].status > state[primary_instance].status) {
                 // we have a higher status lock, change GPS
-                primary_instance = i;
+                primary_instance = 0;
                 continue;
             }
 
-            bool another_gps_has_1_or_more_sats = (state[i].num_sats >= state[primary_instance].num_sats + 1);
+            // bool another_gps_has_1_or_more_sats = (state[i].num_sats >= state[primary_instance].num_sats + 1);
 
-            if (state[i].status == state[primary_instance].status && another_gps_has_1_or_more_sats) {
+            // if (state[i].status == state[primary_instance].status && another_gps_has_1_or_more_sats) {
 
-                uint32_t now = AP_HAL::millis();
-                bool another_gps_has_2_or_more_sats = (state[i].num_sats >= state[primary_instance].num_sats + 2);
+            //     uint32_t now = AP_HAL::millis();
+            //     bool another_gps_has_2_or_more_sats = (state[i].num_sats >= state[primary_instance].num_sats + 2);
 
-                if ( (another_gps_has_1_or_more_sats && (now - _last_instance_swap_ms) >= 20000) ||
-                     (another_gps_has_2_or_more_sats && (now - _last_instance_swap_ms) >= 5000 ) ) {
-                // this GPS has more satellites than the
-                // current primary, switch primary. Once we switch we will
-                // then tend to stick to the new GPS as primary. We don't
-                // want to switch too often as it will look like a
-                // position shift to the controllers.
-                primary_instance = i;
-                _last_instance_swap_ms = now;
-                }
-            }
-            if (copter.motors.armed() && !_get_init_error_gps_rtk && state[1].status == GPS_OK_FIX_3D_RTK)
+            //     if ( (another_gps_has_1_or_more_sats && (now - _last_instance_swap_ms) >= 20000) ||
+            //          (another_gps_has_2_or_more_sats && (now - _last_instance_swap_ms) >= 5000 ) ) {
+            //     // this GPS has more satellites than the
+            //     // current primary, switch primary. Once we switch we will
+            //     // then tend to stick to the new GPS as primary. We don't
+            //     // want to switch too often as it will look like a
+            //     // position shift to the controllers.
+            //     primary_instance = i;
+            //     _last_instance_swap_ms = now;
+            //     }
+            // }
+            if (copter.motors.armed() && !_get_init_error_gps_rtk && state[1].status == GPS_OK_FIX_3D_RTK && state[0].status >= GPS_OK_FIX_3D)
             {
                 _get_init_error_gps_rtk = true;
                 gps_rtk_error.lat_error = state[1].location.lat - state[0].location.lat;
@@ -502,8 +502,6 @@ AP_GPS::update(void)
                 state[0].location.lng = state[0].location.lng + gps_rtk_error.lng_error;
                 state[0].location.alt = state[0].location.alt + gps_rtk_error.alt_error;
             }
-        } else {
-            primary_instance = 0;
         }
     }
 
