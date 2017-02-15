@@ -7,7 +7,7 @@
  *
  */
 #ifndef GPS_CHECK_ITERATION_MAX
- #define GPS_CHECK_ITERATION_MAX 10 // 1 second (ie. 10 iterations at 10hz) of bad variances signals a failure
+ #define GPS_CHECK_ITERATION_MAX 1 // 1 second (ie. 10 iterations at 10hz) of bad variances signals a failure
 #endif
 
 static struct {
@@ -29,6 +29,22 @@ void Copter::gps_check_armed()
 					if (set_mode(LOITER, MODE_REASON_GPS_GLITCH)) {
 						Log_Write_Error(ERROR_SUBSYSTEM_GPS, ERROR_CODE_FAILSAFE_OCCURRED);
 						gcs_send_text(MAV_SEVERITY_CRITICAL,"GPS Glitch Occurred Process done");
+
+
+						enum ap_var_type var_type;
+
+						// set parameter
+						AP_Param *vp;
+						char key[AP_MAX_NAME_SIZE+1] = "EK2_ALT_SOURCE";
+						key[AP_MAX_NAME_SIZE] = 0;
+
+						// find existing param so we can get the old value
+						vp = AP_Param::find(key, &var_type);
+						if (vp == NULL) {
+							return;
+						}
+						// set the value
+						vp->set_float(0, var_type);
 						failsafe.gps = true;
 					}
 				}
