@@ -26,27 +26,24 @@ void Copter::gps_check_armed()
 				gcs_send_text(MAV_SEVERITY_CRITICAL,"GPS Glitch detected");
 				gps_check_state.bad_variance = true;
 				if (control_mode == AUTO) {
-					if (set_mode(LOITER, MODE_REASON_GPS_GLITCH)) {
-						Log_Write_Error(ERROR_SUBSYSTEM_GPS, ERROR_CODE_FAILSAFE_OCCURRED);
-						gcs_send_text(MAV_SEVERITY_CRITICAL,"GPS Glitch Occurred Process done");
-
-
-						enum ap_var_type var_type;
-
-						// set parameter
-						AP_Param *vp;
-						char key[AP_MAX_NAME_SIZE+1] = "EK2_ALT_SOURCE";
-						key[AP_MAX_NAME_SIZE] = 0;
-
-						// find existing param so we can get the old value
-						vp = AP_Param::find(key, &var_type);
-						if (vp == NULL) {
-							return;
-						}
-						// set the value
-						vp->set_float(0, var_type);
-						failsafe.gps = true;
+					failsafe.gps = true;
+					mission.stop(); //stop mission runing.
+					auto_loiter_start(); //start auto loiter
+					Log_Write_Error(ERROR_SUBSYSTEM_GPS, ERROR_CODE_FAILSAFE_OCCURRED);
+					gcs_send_text(MAV_SEVERITY_CRITICAL,"GPS Glitch Occurred Process done");
+					//set EK2_ALT_SOURCE as 0, use baro for alt control.
+					enum ap_var_type var_type;
+					// set parameter
+					AP_Param *vp;
+					char key[AP_MAX_NAME_SIZE+1] = "EK2_ALT_SOURCE";
+					key[AP_MAX_NAME_SIZE] = 0;
+					// find existing param so we can get the old value
+					vp = AP_Param::find(key, &var_type);
+					if (vp == NULL) {
+						return;
 					}
+					// set the value
+					vp->set_float(0, var_type);
 				}
 			}
 		}
