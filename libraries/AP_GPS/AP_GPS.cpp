@@ -161,8 +161,12 @@ const AP_Param::GroupInfo AP_GPS::var_info[] = {
 void AP_GPS::init(DataFlash_Class *dataflash, const AP_SerialManager& serial_manager)
 {
     _DataFlash = dataflash;
-    primary_instance = 1;
-
+    if (_auto_switch)
+    {
+        primary_instance = 1;
+    } else {
+        primary_instance = 0;
+    }
     // search for serial ports with gps protocol
     _port[0] = serial_manager.find_serial(AP_SerialManager::SerialProtocol_GPS, 0);
     _port[1] = serial_manager.find_serial(AP_SerialManager::SerialProtocol_GPS, 1);
