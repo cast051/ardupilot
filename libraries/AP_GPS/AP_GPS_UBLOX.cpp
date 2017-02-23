@@ -821,8 +821,8 @@ AP_GPS_UBLOX::_parse_gps(void)
     case MSG_POSLLH:
         Debug("MSG_POSLLH next_fix=%u", next_fix);
         _last_pos_time        = _buffer.posllh.time;
-        state.location.lng    = _buffer.posllh.longitude + gps_rtk_error.lat_error;
-        state.location.lat    = _buffer.posllh.latitude + gps_rtk_error.lng_error;
+        state.location.lng    = _buffer.posllh.longitude + gps_rtk_error.lng_error;
+        state.location.lat    = _buffer.posllh.latitude + gps_rtk_error.lat_error;
         state.location.alt    = _buffer.posllh.altitude_msl / 10 + gps_rtk_error.alt_error;
         state.status          = next_fix;
         _new_position = true;
