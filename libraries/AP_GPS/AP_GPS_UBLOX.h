@@ -89,7 +89,7 @@
 class AP_GPS_UBLOX : public AP_GPS_Backend
 {
 public:
-	AP_GPS_UBLOX(AP_GPS &_gps, AP_GPS::GPS_State &_state, AP_HAL::UARTDriver *_port);
+	AP_GPS_UBLOX(AP_GPS &_gps, AP_GPS::GPS_State &_state, AP_HAL::UARTDriver *_port, AP_GPS::s_gps_rtk_error &_gps_rtk_error);
 
     // Methods
     bool read();
@@ -534,4 +534,7 @@ private:
     uint8_t _ubx_msg_log_index(uint8_t ubx_msg) {
         return (uint8_t)(ubx_msg + (state.instance * UBX_MSG_TYPES));
     }
+
+    AP_GPS::s_gps_rtk_error &gps_rtk_error;
+
 };

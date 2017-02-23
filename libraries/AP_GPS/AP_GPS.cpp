@@ -172,6 +172,7 @@ void AP_GPS::init(DataFlash_Class *dataflash, const AP_SerialManager& serial_man
     _port[1] = serial_manager.find_serial(AP_SerialManager::SerialProtocol_GPS, 1);
     _last_instance_swap_ms = 0;
     _get_init_error_gps_rtk = false;
+    memset(&gps_rtk_error, 0, sizeof(gps_rtk_error));
 }
 
 // baudrates to try to detect GPSes with
@@ -318,7 +319,7 @@ AP_GPS::detect_instance(uint8_t instance)
             _baudrates[dstate->current_baud] >= 38400 &&
             AP_GPS_UBLOX::_detect(dstate->ublox_detect_state, data)) {
             _broadcast_gps_type("u-blox", instance, dstate->current_baud);
-            new_gps = new AP_GPS_UBLOX(*this, state[instance], _port[instance]);
+            new_gps = new AP_GPS_UBLOX(*this, state[instance], _port[instance], gps_rtk_error);
         } 
 		else if ((_type[instance] == GPS_TYPE_AUTO || _type[instance] == GPS_TYPE_MTK19) &&
                  AP_GPS_MTK19::_detect(dstate->mtk19_detect_state, data)) {
@@ -460,31 +461,12 @@ AP_GPS::update(void)
             if (i == primary_instance) {
                 continue;
             }
-            if (state[0].status > state[primary_instance].status) {
+            if (state[0].status > state[1].status) {
                 // we have a higher status lock, change GPS
                 primary_instance = 0;
                 continue;
             }
-
-            // bool another_gps_has_1_or_more_sats = (state[i].num_sats >= state[primary_instance].num_sats + 1);
-
-            // if (state[i].status == state[primary_instance].status && another_gps_has_1_or_more_sats) {
-
-            //     uint32_t now = AP_HAL::millis();
-            //     bool another_gps_has_2_or_more_sats = (state[i].num_sats >= state[primary_instance].num_sats + 2);
-
-            //     if ( (another_gps_has_1_or_more_sats && (now - _last_instance_swap_ms) >= 20000) ||
-            //          (another_gps_has_2_or_more_sats && (now - _last_instance_swap_ms) >= 5000 ) ) {
-            //     // this GPS has more satellites than the
-            //     // current primary, switch primary. Once we switch we will
-            //     // then tend to stick to the new GPS as primary. We don't
-            //     // want to switch too often as it will look like a
-            //     // position shift to the controllers.
-            //     primary_instance = i;
-            //     _last_instance_swap_ms = now;
-            //     }
-            // }
-            if (copter.motors.armed() && !_get_init_error_gps_rtk && state[1].status == GPS_OK_FIX_3D_RTK && state[0].status >= GPS_OK_FIX_3D)
+            if (!_get_init_error_gps_rtk && state[1].status == GPS_OK_FIX_3D_RTK && state[0].status >= GPS_OK_FIX_3D)
             {
                 _get_init_error_gps_rtk = true;
                 gps_rtk_error.lat_error = state[1].location.lat - state[0].location.lat;
@@ -492,20 +474,12 @@ AP_GPS::update(void)
                 gps_rtk_error.alt_error = state[1].location.alt - state[0].location.alt;
                 char buffer[64];
                 hal.util->snprintf(buffer, sizeof(buffer),
-                 "alt_error is %d",
+                 "AP_GPS->alt_error is %d",
                 gps_rtk_error.alt_error);
                 GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, buffer);
             }
-            if (!copter.motors.armed() && _get_init_error_gps_rtk)
-            {
-                _get_init_error_gps_rtk = false;
-            }
-            if (primary_instance == 0 && _get_init_error_gps_rtk)
-            {
-                state[0].location.lat = state[0].location.lat + gps_rtk_error.lat_error;
-                state[0].location.lng = state[0].location.lng + gps_rtk_error.lng_error;
-                state[0].location.alt = state[0].location.alt + gps_rtk_error.alt_error;
-            }
+        } else {
+            _get_init_error_gps_rtk = false;
         }
     }
 

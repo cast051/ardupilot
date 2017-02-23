@@ -128,6 +128,12 @@ public:
         uint32_t last_gps_time_ms;          ///< the system time we got the last GPS timestamp, milliseconds
     };
 
+    struct s_gps_rtk_error{
+        uint32_t lat_error;
+        uint32_t lng_error;
+        uint32_t alt_error;
+    };
+
     // Pass mavlink data to message handlers (for MAV type)
     void handle_msg(const mavlink_message_t *msg);
 
@@ -438,11 +444,7 @@ private:
     // ibject data into all backends
     void inject_data_all(const uint8_t *data, uint16_t len);
 
-    struct {
-        uint32_t lat_error;
-        uint32_t lng_error;
-        uint32_t alt_error;
-    } gps_rtk_error;
+    s_gps_rtk_error gps_rtk_error;
 
     bool _get_init_error_gps_rtk:1;
 };

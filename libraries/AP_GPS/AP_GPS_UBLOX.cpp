@@ -43,7 +43,7 @@ extern const AP_HAL::HAL& hal;
  # define Debug(fmt, args ...)
 #endif
 
-AP_GPS_UBLOX::AP_GPS_UBLOX(AP_GPS &_gps, AP_GPS::GPS_State &_state, AP_HAL::UARTDriver *_port) :
+AP_GPS_UBLOX::AP_GPS_UBLOX(AP_GPS &_gps, AP_GPS::GPS_State &_state, AP_HAL::UARTDriver *_port, AP_GPS::s_gps_rtk_error &_gps_rtk_error) :
     AP_GPS_Backend(_gps, _state, _port),
     _step(0),
     _msg_id(0),
@@ -65,7 +65,8 @@ AP_GPS_UBLOX::AP_GPS_UBLOX(AP_GPS &_gps, AP_GPS::GPS_State &_state, AP_HAL::UART
     _disable_counter(0),
     next_fix(AP_GPS::NO_FIX),
     _cfg_needs_save(false),
-    noReceivedHdop(true)
+    noReceivedHdop(true),
+    gps_rtk_error(_gps_rtk_error)
 {
     // stop any config strings that are pending
     gps.send_blob_start(state.instance, NULL, 0);
@@ -820,9 +821,9 @@ AP_GPS_UBLOX::_parse_gps(void)
     case MSG_POSLLH:
         Debug("MSG_POSLLH next_fix=%u", next_fix);
         _last_pos_time        = _buffer.posllh.time;
-        state.location.lng    = _buffer.posllh.longitude;
-        state.location.lat    = _buffer.posllh.latitude;
-        state.location.alt    = _buffer.posllh.altitude_msl / 10;
+        state.location.lng    = _buffer.posllh.longitude + gps_rtk_error.lat_error;
+        state.location.lat    = _buffer.posllh.latitude + gps_rtk_error.lng_error;
+        state.location.alt    = _buffer.posllh.altitude_msl / 10 + gps_rtk_error.alt_error;
         state.status          = next_fix;
         _new_position = true;
         state.horizontal_accuracy = _buffer.posllh.horizontal_accuracy*1.0e-3f;
