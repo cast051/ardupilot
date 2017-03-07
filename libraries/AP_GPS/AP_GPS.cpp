@@ -172,6 +172,7 @@ void AP_GPS::init(DataFlash_Class *dataflash, const AP_SerialManager& serial_man
     _port[1] = serial_manager.find_serial(AP_SerialManager::SerialProtocol_GPS, 1);
     _last_instance_swap_ms = 0;
     _get_init_error_gps_rtk = false;
+    _initial_switch_gps_rtk_flag = false;
     memset(&gps_rtk_error, 0, sizeof(gps_rtk_error));
 }
 
@@ -464,10 +465,11 @@ AP_GPS::update(void)
             if (state[0].status > state[1].status) {
                 // we have a higher status lock, change GPS
                 primary_instance = 0;
+                _initial_switch_gps_rtk_flag = true;
+                _initial_switch_gps_rtk_time = AP_HAL::millis();
                 continue;
-            }
-            if (!_get_init_error_gps_rtk && state[1].status == GPS_OK_FIX_3D_RTK && state[0].status >= GPS_OK_FIX_3D)
-            {
+            } 
+            if (!_get_init_error_gps_rtk && state[1].status == GPS_OK_FIX_3D_RTK && state[0].status >= GPS_OK_FIX_3D) {
                 _get_init_error_gps_rtk = true;
                 gps_rtk_error.lat_error = state[1].location.lat - state[0].location.lat;
                 gps_rtk_error.lng_error = state[1].location.lng - state[0].location.lng;
@@ -477,6 +479,14 @@ AP_GPS::update(void)
                  "AP_GPS->alt_error is %d",
                 gps_rtk_error.alt_error);
                 GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, buffer);
+            }
+            if (_initial_switch_gps_rtk_flag && AP_HAL::millis() - _initial_switch_gps_rtk_time < SECOND_SWITCH_GPS_RTK_PERIOD)
+            {
+                if (state[1].status > state[0].status)
+                {
+                    primary_instance = 1;
+                    _initial_switch_gps_rtk_flag = false;
+                }
             }
         } else {
             _get_init_error_gps_rtk = false;

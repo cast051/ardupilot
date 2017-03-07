@@ -30,6 +30,7 @@
  */
 #define GPS_MAX_INSTANCES 2
 #define GPS_RTK_INJECT_TO_ALL 127
+#define SECOND_SWITCH_GPS_RTK_PERIOD 10 * 1000
 
 class DataFlash_Class;
 class AP_GPS_Backend;
@@ -446,7 +447,10 @@ private:
 
     s_gps_rtk_error gps_rtk_error;
 
-    bool _get_init_error_gps_rtk:1;
+    bool _get_init_error_gps_rtk : 1;
+    bool _initial_switch_gps_rtk_flag : 1;
+    uint32_t _initial_switch_gps_rtk_time;
+
 };
 
 #define GPS_BAUD_TIME_MS 1200

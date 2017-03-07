@@ -934,6 +934,7 @@ private:
     void failsafe_ekf_off_event(void);
     void gps_check_armed();
     bool gps_overthrottle();
+    bool gps_backnormal();
     void esc_calibration_startup_check();
     void esc_calibration_passthrough();
     void esc_calibration_auto();
