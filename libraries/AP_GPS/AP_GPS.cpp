@@ -468,7 +468,7 @@ AP_GPS::update(void)
                 _initial_switch_gps_rtk_flag = true;
                 _initial_switch_gps_rtk_time = AP_HAL::millis();
                 continue;
-            } 
+            }
             if (!_get_init_error_gps_rtk && state[1].status == GPS_OK_FIX_3D_RTK && state[0].status >= GPS_OK_FIX_3D) {
                 _get_init_error_gps_rtk = true;
                 gps_rtk_error.lat_error = state[1].location.lat - state[0].location.lat;
@@ -486,6 +486,7 @@ AP_GPS::update(void)
                 {
                     primary_instance = 1;
                     _initial_switch_gps_rtk_flag = false;
+                    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_CRITICAL,"RTK back in AP_GPS");
                 }
             }
         } else {

@@ -11,7 +11,7 @@
 #endif
 
 #ifndef GPS_CHECK_BACK_ITERATION_MAX
-	#define GPS_CHECK_BACK_ITERATION_MAX 10 // 10 seconds
+ #define GPS_CHECK_BACK_ITERATION_MAX 10 // 10 seconds
 #endif
 
 static struct {
@@ -75,13 +75,14 @@ void Copter::gps_check_armed()
 			vp->set_float(1, var_type);
 			gps_check_state.bad_variance = false;
 			gps_check_state.fail_count = 0;
+			gps_check_state.back_count = 0;
 		} else {
 			gps_check_state.back_count++;
 			if (gps_check_state.back_count > GPS_CHECK_BACK_ITERATION_MAX) {
 				gcs_send_text(MAV_SEVERITY_CRITICAL,"RTK Gone");
 				gps_check_state.rtk_gone = true;
 			}
-		}			
+		}
 	}
 }
 
