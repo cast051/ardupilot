@@ -104,7 +104,6 @@ private:
         float htdop;
         float tdop;
         float cutoff;
-        uint32_t svcount;
         // extra data for individual prns
     };
 
@@ -146,11 +145,21 @@ private:
         double vertspd;
         float resv;
     };
+
+    struct PACKED HEADING
+    {
+        uint32_t solstat;
+        uint32_t veltype;
+        float length;
+        float heading;
+        float pitch;
+    };
     
     union PACKED msgbuffer {
         bestvel bestvelu;
         bestpos bestposu;
         psrdop psrdopu;
+        HEADING HEADINGU;
         uint8_t bytes[256];
     };
     

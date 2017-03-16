@@ -267,6 +267,14 @@ AP_GPS_NOVA::process_message(void)
         return false;
     }
 
+    if (messageid == 971) //HEADIDNG
+    {
+        const HEADING &HEADINGU = nova_msg.data.HEADINGU;
+
+        state.heading = (float) (HEADINGU.heading);
+        state.have_heading = true;
+    }
+
     // ensure out position and velocity stay insync
     if (_new_position && _new_speed && _last_vel_time == state.last_gps_time_ms) {
         _new_speed = _new_position = false;

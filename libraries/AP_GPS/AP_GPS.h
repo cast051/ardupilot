@@ -127,6 +127,8 @@ public:
         bool have_horizontal_accuracy:1;
         bool have_vertical_accuracy:1;
         uint32_t last_gps_time_ms;          ///< the system time we got the last GPS timestamp, milliseconds
+        bool have_heading:1;                 ///< does the GPS give heading?
+        float heading;                      ///< the heading of the copter.
     };
 
     struct s_gps_rtk_error{
@@ -326,6 +328,23 @@ public:
 
     // set accuracy for HIL
     void setHIL_Accuracy(uint8_t instance, float vdop, float hacc, float vacc, float sacc, bool _have_vertical_velocity, uint32_t sample_ms);
+
+    float heading(uint8_t instance) const {
+        return state[instance].heading;
+    }
+    float get_heading(void) const {
+        return  heading(primary_instance);
+    }
+
+    bool have_heading(void) const {
+        return have_heading(primary_instance);
+    }
+
+    bool have_heading(uint8_t instance) const {
+        return state[instance].have_heading;
+    }
+
+
     
     static const struct AP_Param::GroupInfo var_info[];
 
