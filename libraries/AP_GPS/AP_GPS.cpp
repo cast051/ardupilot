@@ -280,7 +280,7 @@ AP_GPS::detect_instance(uint8_t instance)
 		_broadcast_gps_type("GSOF", instance, -1); // baud rate isn't valid
 		new_gps = new AP_GPS_GSOF(*this, state[instance], _port[instance]);
 	} else if ((_type[instance] == GPS_TYPE_NOVA)) {
-        _port[instance]->begin(_rtk_baud);
+        _port[instance]->begin(38400U);
         _port[instance]->set_flow_control(AP_HAL::UARTDriver::FLOW_CONTROL_DISABLE);
 		_broadcast_gps_type("NOVA", instance, -1); // baud rate isn't valid
 		new_gps = new AP_GPS_NOVA(*this, state[instance], _port[instance]);
