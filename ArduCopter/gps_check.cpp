@@ -11,7 +11,7 @@
 #endif
 
 #ifndef GPS_CHECK_BACK_ITERATION_MAX
- #define GPS_CHECK_BACK_ITERATION_MAX 10 // 10 seconds
+ #define GPS_CHECK_BACK_ITERATION_MAX 100 // 10 seconds
 #endif
 
 static struct {
@@ -72,7 +72,7 @@ void Copter::gps_check_armed()
 				return;
 			}
 			// set the value
-			vp->set_float(1, var_type);
+			vp->set_float(2, var_type);
 			gps_check_state.bad_variance = false;
 			gps_check_state.fail_count = 0;
 			gps_check_state.back_count = 0;
