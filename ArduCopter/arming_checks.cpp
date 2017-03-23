@@ -514,6 +514,15 @@ bool Copter::pre_arm_gps_checks(bool display_failure)
         return false;
     }
 
+    if (gps.status() != AP_GPS::GPS_OK_FIX_3D_RTK)
+    {
+        if (display_failure) {
+            gcs_send_text(MAV_SEVERITY_CRITICAL,"PreArm: RTK NOT FIX");
+        }
+        AP_Notify::flags.pre_arm_gps_check = false;
+        return false;
+    }
+
     // check EKF compass variance is below failsafe threshold
     float vel_variance, pos_variance, hgt_variance, tas_variance;
     Vector3f mag_variance;
