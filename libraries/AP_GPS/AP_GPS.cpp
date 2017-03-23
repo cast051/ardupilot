@@ -154,6 +154,12 @@ const AP_Param::GroupInfo AP_GPS::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("RATE_MS2", 15, AP_GPS, _rate_ms[1], 200),
 
+    // @Param: RTK_BAUD
+    // @DisplayName: rtk baudrates
+    // @Description: Set the gps 2 rtk baudrates
+    // @User: Advanced
+    AP_GROUPINFO("RTK_BAUD", 16, AP_GPS, _rtk_baud, 38400),
+
     AP_GROUPEND
 };
 
@@ -274,8 +280,13 @@ AP_GPS::detect_instance(uint8_t instance)
 		_broadcast_gps_type("GSOF", instance, -1); // baud rate isn't valid
 		new_gps = new AP_GPS_GSOF(*this, state[instance], _port[instance]);
 	} else if ((_type[instance] == GPS_TYPE_NOVA)) {
+        _port[instance]->begin(_rtk_baud);
+        _port[instance]->set_flow_control(AP_HAL::UARTDriver::FLOW_CONTROL_DISABLE);
 		_broadcast_gps_type("NOVA", instance, -1); // baud rate isn't valid
 		new_gps = new AP_GPS_NOVA(*this, state[instance], _port[instance]);
+        drivers[instance] = new_gps;
+        timing[instance].last_message_time_ms = now;
+        return;
 	}
 
     // record the time when we started detection. This is used to try
@@ -405,7 +416,7 @@ AP_GPS::update_instance(uint8_t instance)
         return;
     }
 
-    if (drivers[instance] == NULL || state[instance].status == NO_GPS) {
+    if (drivers[instance] == NULL) {
         // we don't yet know the GPS type of this one, or it has timed
         // out and needs to be re-initialised
         detect_instance(instance);
@@ -486,7 +497,7 @@ AP_GPS::update(void)
                 {
                     primary_instance = 1;
                     _initial_switch_gps_rtk_flag = false;
-                    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_CRITICAL,"RTK back in AP_GPS");
+                    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_CRITICAL,"AP_GPS RTK back in AP_GPS");
                 }
             }
         } else {

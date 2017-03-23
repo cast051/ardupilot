@@ -46,11 +46,11 @@ AP_GPS_NOVA::AP_GPS_NOVA(AP_GPS &_gps, AP_GPS::GPS_State &_state,
 {
     nova_msg.nova_state = nova_msg_parser::PREAMBLE1;
 
-    const char *init_str = _initialisation_blob[0];
-    const char *init_str1 = _initialisation_blob[1];
+    // const char *init_str = _initialisation_blob[0];
+    // const char *init_str1 = _initialisation_blob[1];
     
-    port->write((const uint8_t*)init_str, strlen(init_str));
-    port->write((const uint8_t*)init_str1, strlen(init_str1));
+    // port->write((const uint8_t*)init_str, strlen(init_str));
+    // port->write((const uint8_t*)init_str1, strlen(init_str1));
 }
 
 // Process all bytes available from the stream
@@ -58,17 +58,17 @@ AP_GPS_NOVA::AP_GPS_NOVA(AP_GPS &_gps, AP_GPS::GPS_State &_state,
 bool
 AP_GPS_NOVA::read(void)
 {
-    uint32_t now = AP_HAL::millis();
+    // uint32_t now = AP_HAL::millis();
 
-    if (_init_blob_index < (sizeof(_initialisation_blob) / sizeof(_initialisation_blob[0]))) {
-        const char *init_str = _initialisation_blob[_init_blob_index];
+    // if (_init_blob_index < (sizeof(_initialisation_blob) / sizeof(_initialisation_blob[0]))) {
+    //     const char *init_str = _initialisation_blob[_init_blob_index];
 
-        if (now > _init_blob_time) {
-            port->write((const uint8_t*)init_str, strlen(init_str));
-            _init_blob_time = now + 200;
-            _init_blob_index++;
-        }
-    }
+    //     if (now > _init_blob_time) {
+    //         port->write((const uint8_t*)init_str, strlen(init_str));
+    //         _init_blob_time = now + 200;
+    //         _init_blob_index++;
+    //     }
+    // }
 
     bool ret = false;
     while (port->available() > 0) {
