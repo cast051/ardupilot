@@ -347,7 +347,6 @@ public:
     AP_Int16 _rate_ms[2];
     AP_Int8 _save_config;
     AP_Int8 _auto_config;
-    AP_Int16 _rtk_baud;
 
 
     

@@ -154,12 +154,6 @@ const AP_Param::GroupInfo AP_GPS::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("RATE_MS2", 15, AP_GPS, _rate_ms[1], 200),
 
-    // @Param: RTK_BAUD
-    // @DisplayName: rtk baudrates
-    // @Description: Set the gps 2 rtk baudrates
-    // @User: Advanced
-    AP_GROUPINFO("RTK_BAUD", 16, AP_GPS, _rtk_baud, 38400),
-
     AP_GROUPEND
 };
 
