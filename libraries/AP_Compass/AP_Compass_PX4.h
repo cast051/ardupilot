@@ -13,7 +13,11 @@ public:
     AP_Compass_PX4(Compass &compass);
     // detect the sensor
     static AP_Compass_Backend *detect(Compass &compass);
-
+	float rtkyawDeg;
+	Vector3f rtkmagfiled;
+	Matrix3f rtkR;
+	bool inintyaw;
+	int badgpsyaw;//gps.yaw±ä»µŽÎÊý
 private:
     uint8_t  _num_sensors;
 

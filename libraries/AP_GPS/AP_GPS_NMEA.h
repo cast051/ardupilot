@@ -67,7 +67,8 @@ private:
     enum _sentence_types {      //there are some more than 10 fields in some sentences , thus we have to increase these value.
         _GPS_SENTENCE_RMC = 32,
         _GPS_SENTENCE_GGA = 64,
-        _GPS_SENTENCE_VTG = 96,
+		_GPS_SENTENCE_VTG = 96,
+		_GPS_SENTENCE_TRA = 128,
         _GPS_SENTENCE_OTHER = 0
     };
 
@@ -93,7 +94,7 @@ private:
     ///					multiplied by 100.
     ///
     static int32_t _parse_decimal_100(const char *p);
-
+	static int32_t _parse_decimal(const char *p);
     /// Parses the current term as a NMEA-style degrees + minutes
     /// value with up to four decimal digits.
     ///
@@ -140,7 +141,8 @@ private:
 
     uint32_t _last_RMC_ms = 0;
     uint32_t _last_GGA_ms = 0;
-    uint32_t _last_VTG_ms = 0;
+	uint32_t _last_VTG_ms = 0;
+	uint32_t _last_TRA_ms = 0;
 
     /// @name	Init strings
     ///			In ::init, an attempt is made to configure the GPS

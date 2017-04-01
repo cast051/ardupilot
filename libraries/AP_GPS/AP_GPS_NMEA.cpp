@@ -35,7 +35,7 @@
 #include <stdlib.h>
 
 #include "AP_GPS_NMEA.h"
-
+#include "../../ArduCopter/Copter.h"
 extern const AP_HAL::HAL& hal;
 
 // optionally log all NMEA data for debug purposes
@@ -151,8 +151,8 @@ bool AP_GPS_NMEA::_decode(char c)
         ++_term_number;
         _term_offset = 0;
         _is_checksum_term = c == '*';
-        return valid_sentence;
-
+        //return valid_sentence;
+		return _is_checksum_term;
     case '$': // sentence begin
         _term_number = _term_offset = 0;
         _parity = 0;
@@ -211,7 +211,44 @@ int32_t AP_GPS_NMEA::_parse_decimal_100(const char *p)
     }
     return ret;
 }
-
+int32_t AP_GPS_NMEA::_parse_decimal(const char *pp)
+{
+	/*char *endptr = nullptr;
+	long ret = strtol(p, &endptr, 10);
+	int sign = ret < 0 ? -1 : 1;
+	if (ret >= (long)INT32_MAX) {
+		return INT32_MAX;
+	}
+	if (ret <= (long)INT32_MIN) {
+		return INT32_MIN;
+	}
+	if (endptr == nullptr || *endptr != '.') {
+		return ret;
+	}
+	if (isdigit(endptr[1])) {
+		ret += sign * 10 * DIGIT_TO_VAL(endptr[1]);
+		if (isdigit(endptr[2])) {
+			ret += sign * DIGIT_TO_VAL(endptr[2]);
+			if (isdigit(endptr[3])) {
+				ret += sign * (DIGIT_TO_VAL(endptr[3]) >= 5);
+			}
+		}
+	}
+	return ret;
+*/
+	char *p =(char*) pp;
+	uint32_t ret = 100UL * atol(p);
+	while (isdigit(*p))
+		++p;
+	if (*p == '.') {
+		if (isdigit(p[1])) {
+			ret += 10 * DIGIT_TO_VAL(p[1]);
+			if (isdigit(p[2]))
+				ret += DIGIT_TO_VAL(p[2]);
+		}
+	}
+	return (float)(ret*0.01f);
+}
 /*
   parse a NMEA latitude/longitude degree value. The result is in degrees*1e7
  */
@@ -267,12 +304,12 @@ bool AP_GPS_NMEA::_have_new_message()
         return false;
     }
     uint32_t now = AP_HAL::millis();
-    if (now - _last_RMC_ms > 150 ||
-        now - _last_GGA_ms > 150) {
+    if (now - _last_RMC_ms > 300 ||
+        now - _last_GGA_ms > 300) {
         return false;
     }
     if (_last_VTG_ms != 0 && 
-        now - _last_VTG_ms > 150) {
+        now - _last_VTG_ms > 300) {
         return false;
     }
     // prevent these messages being used again
@@ -283,7 +320,10 @@ bool AP_GPS_NMEA::_have_new_message()
     _last_RMC_ms = 1;
     return true;
 }
-
+int kk2 = 0;
+int ttt = 0;
+bool firstcheck = false;
+bool firstadd = false;
 // Processes a just-completed term
 // Returns true if new sentence has just passed checksum test and is validated
 bool AP_GPS_NMEA::_term_complete()
@@ -306,7 +346,7 @@ bool AP_GPS_NMEA::_term_complete()
                     make_gps_time(_new_date, _new_time * 10);
                     state.last_gps_time_ms = now;
                     // To-Do: add support for proper reporting of 2D and 3D fix
-                    // state.status           = AP_GPS::GPS_OK_FIX_3D;
+                    //state.status           = AP_GPS::GPS_OK_FIX_3D;
                     fill_3d_velocity();
                     break;
                 case _GPS_SENTENCE_GGA:
@@ -317,7 +357,7 @@ bool AP_GPS_NMEA::_term_complete()
                     state.num_sats      = _new_satellite_count;
                     state.hdop          = _new_hdop;
                     // To-Do: add support for proper reporting of 2D and 3D fix
-                    // state.status        = AP_GPS::GPS_OK_FIX_3D;
+                    //state.status        = AP_GPS::GPS_OK_FIX_3D;
                     break;
                 case _GPS_SENTENCE_VTG:
                     _last_VTG_ms = now;
@@ -326,6 +366,9 @@ bool AP_GPS_NMEA::_term_complete()
                     fill_3d_velocity();
                     // VTG has no fix indicator, can't change fix status
                     break;
+				case _GPS_SENTENCE_TRA:
+					_last_TRA_ms = now;
+					break;
                 }
             } else {
                 switch (_sentence_type) {
@@ -365,7 +408,10 @@ bool AP_GPS_NMEA::_term_complete()
             // VTG may not contain a data qualifier, presume the solution is good
             // unless it tells us otherwise.
             _gps_data_good = true;
-        } else {
+        }else if (!strcmp(term_type, "TRA")) {
+			_sentence_type = _GPS_SENTENCE_TRA;
+		}
+		else {
             _sentence_type = _GPS_SENTENCE_OTHER;
         }
         return false;
@@ -381,28 +427,42 @@ bool AP_GPS_NMEA::_term_complete()
             break;
         case _GPS_SENTENCE_GGA + 6: // Fix data (GGA)
             _gps_data_good = _term[0] > '0';
-            switch(atoi(_term))
-            {
-                case 0:
-                case 3:
-                    state.status = AP_GPS::NO_FIX;
-                    break;
-                case 1:
-                    state.status = AP_GPS::GPS_OK_FIX_2D;
-                    break;
-                case 2:
-                    state.status = AP_GPS::GPS_OK_FIX_3D;
-                    break;
-                case 4:
-                    state.status = AP_GPS::GPS_OK_FIX_3D_RTK;
-                    break;
-                case 5:
-                    state.status = AP_GPS::GPS_OK_FIX_3D_DGPS;
-                    break;
-                default:
-                    state.status = AP_GPS::NO_FIX;
-                    break;
-            }
+			// copter.tqstruct.rtkstatu = (AP_GPS::GPS_Status)atoi(_term);
+			switch((AP_GPS::GPS_Status)atoi(_term))
+			{
+			case 0:
+			case 3:
+				state.status = AP_GPS::NO_FIX;
+				break;
+			case 1:
+				state.status = AP_GPS::GPS_OK_FIX_2D;
+				break;
+			case 2:
+				state.status = AP_GPS::GPS_OK_FIX_2D;
+				break;
+			case 4:
+				state.status = AP_GPS::GPS_OK_FIX_3D_RTK;
+				//Ã¿ŽÎŒÇÂŒÆ«²î
+				//gps.SetGpsRtkError();
+				if (!firstcheck)
+				{
+					if (++ttt>10)
+					{
+						copter.rtkstatuok = true;
+						
+						firstcheck = true;
+					}
+				}
+
+				break;
+			case 5:
+				//gps.SetGpsRtkError();
+				state.status = AP_GPS::GPS_OK_FIX_3D_DGPS;
+				break;
+			default:
+				state.status = AP_GPS::NO_FIX;
+				break;
+			}
             break;
         case _GPS_SENTENCE_VTG + 9: // validity (VTG) (we may not see this field)
             _gps_data_good = _term[0] != 'N';
@@ -458,6 +518,43 @@ bool AP_GPS_NMEA::_term_complete()
         case _GPS_SENTENCE_VTG + 1: // Course (VTG)
             _new_course = _parse_decimal_100(_term);
             break;
+		case _GPS_SENTENCE_TRA + 2:
+			{
+					float ang = _parse_decimal(_term);
+					//if (!is_zero(ang))
+					{
+						ang -= 90.0f;
+						if (ang < 0.0f)
+						{
+							ang += 360.0f;
+						}
+						
+					}
+					copter.curyaw = ang;
+					//ang += copter.addyaw;
+					//if (copter.compassok && rtkCompute(copter.ahrs.yaw, ang)>20)
+					//{
+					//	copter.curyaw = copter.ahrs.yaw;
+					//	//copter.set_auto_yaw_mode(AUTO_YAW_HOLD);
+					//}
+					//else
+					//{
+					//	copter.curyaw = ang;
+					//	//copter.set_auto_yaw_mode(AUTO_YAW_HOLD);
+					//}
+					//
+					/*if (firstadd &&state.status >= 4 && rtkCompute(copter.ahrs.yaw, ang)>10)
+					{
+						copter.gcs_send_text_fmt(MAV_SEVERITY_ERROR, "%.3f,%.3f", copter.curyaw, ang);
+					}
+					else
+					{
+						copter.curyaw = ang;
+						firstadd = true;
+					}
+					*/
+			}
+			break;
         }
     }
 

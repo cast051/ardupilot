@@ -145,6 +145,15 @@ public:
     void setup() override;
     void loop() override;
 
+    bool rtkstatuok;
+    bool compassok;
+    float curyaw;
+    AP_GPS gps;
+
+    NavEKF EKF{ &ahrs, barometer, rangefinder };
+    NavEKF2 EKF2{ &ahrs, barometer, rangefinder };
+    AP_AHRS_NavEKF ahrs{ ins, barometer, gps, rangefinder, EKF, EKF2, AP_AHRS_NavEKF::FLAG_ALWAYS_USE_EKF };
+
 private:
     // key aircraft parameters passed to multiple libraries
     AP_Vehicle::MultiCopter aparm;
@@ -179,7 +188,7 @@ private:
     // Dataflash
     DataFlash_Class DataFlash;
 
-    AP_GPS gps;
+    
 
     // flight modes convenience array
     AP_Int8 *flight_modes;
@@ -200,9 +209,9 @@ private:
     AP_RPM rpm_sensor;
 
     // Inertial Navigation EKF
-    NavEKF EKF{&ahrs, barometer, rangefinder};
-    NavEKF2 EKF2{&ahrs, barometer, rangefinder};
-    AP_AHRS_NavEKF ahrs{ins, barometer, gps, rangefinder, EKF, EKF2, AP_AHRS_NavEKF::FLAG_ALWAYS_USE_EKF};
+    // NavEKF EKF{&ahrs, barometer, rangefinder};
+    // NavEKF2 EKF2{&ahrs, barometer, rangefinder};
+    // AP_AHRS_NavEKF ahrs{ins, barometer, gps, rangefinder, EKF, EKF2, AP_AHRS_NavEKF::FLAG_ALWAYS_USE_EKF};
 
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
     SITL::SITL sitl;
@@ -1082,7 +1091,7 @@ private:
     void takeoff_get_climb_rates(float& pilot_climb_rate, float& takeoff_climb_rate);
     void print_hit_enter();
     void tuning();
-    void gcs_send_text_fmt(MAV_SEVERITY severity, const char *fmt, ...);
+    // void gcs_send_text_fmt(MAV_SEVERITY severity, const char *fmt, ...);
     bool start_command(const AP_Mission::Mission_Command& cmd);
     bool verify_command(const AP_Mission::Mission_Command& cmd);
     bool verify_command_callback(const AP_Mission::Mission_Command& cmd);
@@ -1159,6 +1168,8 @@ public:
     int8_t test_rangefinder(uint8_t argc, const Menu::arg *argv);
 
     int8_t reboot_board(uint8_t argc, const Menu::arg *argv);
+    void gcs_send_text_fmt(MAV_SEVERITY severity, const char *fmt, ...);
+
 };
 
 #define MENU_FUNC(func) FUNCTOR_BIND(&copter, &Copter::func, int8_t, uint8_t, const Menu::arg *)

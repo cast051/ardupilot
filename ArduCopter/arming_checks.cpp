@@ -127,6 +127,7 @@ bool Copter::barometer_checks(bool display_failure)
 
 bool Copter::compass_checks(bool display_failure)
 {
+    return true;
     // check Compass
     if ((g.arming_check == ARMING_CHECK_ALL) || (g.arming_check & ARMING_CHECK_COMPASS)) {
         //check if compass has calibrated and requires reboot

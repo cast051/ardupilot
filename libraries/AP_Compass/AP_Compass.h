@@ -46,8 +46,8 @@
    maximum number of compass instances available on this platform. If more
    than 1 then redundant sensors may be available
  */
-#define COMPASS_MAX_INSTANCES 3
-#define COMPASS_MAX_BACKEND   3
+#define COMPASS_MAX_INSTANCES 1
+#define COMPASS_MAX_BACKEND   1
 
 #define AP_COMPASS_MAX_XYZ_ANG_DIFF radians(50.0f)
 #define AP_COMPASS_MAX_XY_ANG_DIFF radians(30.0f)
@@ -142,7 +142,7 @@ public:
     bool consistent() const;
 
     /// Return the health of a compass
-    bool healthy(uint8_t i) const { return _state[i].healthy; }
+    bool healthy(uint8_t i) const { return _state[0].healthy; }
     bool healthy(void) const { return healthy(get_primary()); }
     uint8_t get_healthy_mask() const;
 
@@ -150,7 +150,7 @@ public:
     ///
     /// @returns                    The current compass offsets in milligauss.
     ///
-    const Vector3f &get_offsets(uint8_t i) const { return _state[i].offset; }
+    const Vector3f &get_offsets(uint8_t i) const { return _state[0].offset; }
     const Vector3f &get_offsets(void) const { return get_offsets(get_primary()); }
 
     /// Sets the initial location used to get declination
@@ -214,7 +214,7 @@ public:
     void set_motor_compensation(uint8_t i, const Vector3f &motor_comp_factor);
 
     /// get motor compensation factors as a vector
-    const Vector3f& get_motor_compensation(uint8_t i) const { return _state[i].motor_compensation; }
+    const Vector3f& get_motor_compensation(uint8_t i) const { return _state[0].motor_compensation; }
     const Vector3f& get_motor_compensation(void) const { return get_motor_compensation(get_primary()); }
 
     /// Saves the current motor compensation x/y/z values.
@@ -227,7 +227,7 @@ public:
     ///
     /// @returns                    The current compass offsets in milligauss.
     ///
-    const Vector3f &get_motor_offsets(uint8_t i) const { return _state[i].motor_offset; }
+    const Vector3f &get_motor_offsets(uint8_t i) const { return _state[0].motor_offset; }
     const Vector3f &get_motor_offsets(void) const { return get_motor_offsets(get_primary()); }
 
     /// Set the throttle as a percentage from 0.0 to 1.0
@@ -269,8 +269,8 @@ public:
     void        set_hil_mode(void) { _hil_mode = true; }
 
     // return last update time in microseconds
-    uint32_t last_update_usec(void) const { return _state[get_primary()].last_update_usec; }
-    uint32_t last_update_usec(uint8_t i) const { return _state[i].last_update_usec; }
+    uint32_t last_update_usec(void) const { return _state[0].last_update_usec; }
+    uint32_t last_update_usec(uint8_t i) const { return _state[0].last_update_usec; }
 
     static const struct AP_Param::GroupInfo var_info[];
 

@@ -115,6 +115,10 @@ public:
     // time that the AHRS has been up
     uint32_t uptime_ms(void) const;
 
+    Matrix3f _body_dcm_matrix;
+
+
+
 private:
     float _ki;
     float _ki_yaw;
@@ -135,7 +139,7 @@ private:
     Matrix3f _dcm_matrix;
 
     // primary representation of attitude of flight vehicle body
-    Matrix3f _body_dcm_matrix;
+    // Matrix3f _body_dcm_matrix;
 
     Vector3f _omega_P;                          // accel Omega proportional correction
     Vector3f _omega_yaw_P;                      // proportional yaw correction

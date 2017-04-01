@@ -34,7 +34,7 @@
 #include <drivers/drv_hrt.h>
 #include <stdio.h>
 #include <errno.h>
-
+#include "../../ArduCopter/Copter.h"
 extern const AP_HAL::HAL& hal;
 
 
@@ -64,9 +64,9 @@ AP_Compass_Backend *AP_Compass_PX4::detect(Compass &compass)
 bool AP_Compass_PX4::init(void)
 {
 	_mag_fd[0] = open(MAG_BASE_DEVICE_PATH"0", O_RDONLY);
-	_mag_fd[1] = open(MAG_BASE_DEVICE_PATH"1", O_RDONLY);
+	/*_mag_fd[1] = open(MAG_BASE_DEVICE_PATH"1", O_RDONLY);
 	_mag_fd[2] = open(MAG_BASE_DEVICE_PATH"2", O_RDONLY);
-
+*/
     _num_sensors = 0;
     for (uint8_t i=0; i<COMPASS_MAX_INSTANCES; i++) {
         if (_mag_fd[i] >= 0) {
@@ -110,20 +110,56 @@ bool AP_Compass_PX4::init(void)
 void AP_Compass_PX4::read(void)
 {
     // try to accumulate one more sample, so we have the latest data
-    accumulate();
+    		accumulate();
+// avoid division by zero if we haven't received any mag reports
+	    	
+		if (copter.rtkstatuok&&copter.gps.status() >= 4)
+		{
+			rtkyawDeg = ToRad(copter.curyaw);
+			Vector3f mag_ef(300, 0, 0);
+			float roll, pitch, yaw;
+			copter.ahrs._body_dcm_matrix.to_euler(&roll, &pitch, &yaw);
+			rtkR.from_euler(roll, pitch, rtkyawDeg);
+			// Rotate into body frame
+			mag_ef = rtkR.transposed() * mag_ef;
+			_sum[0] = mag_ef;
+			publish_filtered_field(_sum[0], _instance[0]);
 
-    for (uint8_t i=0; i<_num_sensors; i++) {
-        uint8_t frontend_instance = _instance[i];
-        // avoid division by zero if we haven't received any mag reports
-        if (_count[i] == 0) continue;
+			
+			if (!copter.compassok)
+			{
+				copter.compassok = true;
+				inintyaw = true;
+				
+				//copter.ahrs.reset();
+			}
+		}
+		else
+		{
+			if (!inintyaw)
+			{
+				rtkyawDeg = ToRad(0);
+				Vector3f mag_ef(300, 0, 0);
+				rtkR.from_euler(0, 0, 0.0f);
+				mag_ef = rtkR.transposed() * mag_ef;
+				_sum[0] = mag_ef;//žøÖµ
+				publish_filtered_field(_sum[0], _instance[0]);
 
-        _sum[i] /= _count[i];
+			}
+			else
+			{
+				Vector3f mag_ef(300, 0, 0);
+				float roll, pitch, yaw;
+				copter.ahrs._body_dcm_matrix.to_euler(&roll, &pitch, &yaw);
 
-        publish_filtered_field(_sum[i], frontend_instance);
-    
-        _sum[i].zero();
-        _count[i] = 0;
-    }
+				rtkR.from_euler(roll, pitch, copter.ahrs.yaw);
+				mag_ef = rtkR.transposed() * mag_ef;
+				_sum[0] = mag_ef;//žøÖµ
+				publish_filtered_field(_sum[0], _instance[0]);
+
+			}
+		}
+
 }
 
 void AP_Compass_PX4::accumulate(void)

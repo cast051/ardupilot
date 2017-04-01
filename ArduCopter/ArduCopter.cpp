@@ -245,6 +245,10 @@ void Copter::loop()
 // Main loop - 400hz
 void Copter::fast_loop()
 {
+    if (!compassok)
+    {
+        return;
+    }
 
     // IMU DCM Algorithm
     // --------------------

@@ -21,6 +21,7 @@
 #include "AP_GPS_NOVA.h"
 #include <DataFlash/DataFlash.h>
 
+#include "../../ArduCopter/Copter.h"
 extern const AP_HAL::HAL& hal;
 
 #define NOVA_DEBUGGING 0
@@ -181,6 +182,9 @@ AP_GPS_NOVA::parse(uint8_t temp)
     return false;
 }
 
+int kk = 0;
+int kkkk = 0;
+bool navfirstcheck = false;
 bool
 AP_GPS_NOVA::process_message(void)
 {
@@ -227,6 +231,17 @@ AP_GPS_NOVA::process_message(void)
                 case 48: // l1 int
                 case 50: // narrow int
                     state.status = AP_GPS::GPS_OK_FIX_3D_RTK;
+					
+					if (!navfirstcheck)
+					{
+						if (++kkkk > 10)
+						{
+							copter.rtkstatuok = true;
+							//gps.SetGpsRtkError();
+							navfirstcheck = true;
+							kkkk = 0;
+						}
+					}
                     break;
                 case 0: // NONE
                 case 1: // FIXEDPOS
@@ -271,8 +286,16 @@ AP_GPS_NOVA::process_message(void)
     {
         const HEADING &HEADINGU = nova_msg.data.HEADINGU;
 
-        state.heading = (float) (HEADINGU.heading);
-        state.have_heading = true;
+      		 float ang = (float)(HEADINGU.heading);
+		//if (!is_zero(ang))
+		{
+			ang -= 90.0f;
+			if (ang < 0.0f)
+			{
+				ang += 360.0f;
+			}
+			copter.curyaw = ang;
+		}
     }
 
     // ensure out position and velocity stay insync
