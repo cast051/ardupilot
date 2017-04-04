@@ -7,7 +7,7 @@
  *
  */
 #ifndef GPS_CHECK_FAIL_ITERATION_MAX
- #define GPS_CHECK_FAIL_ITERATION_MAX 1 // 1 second (ie. 10 iterations at 10hz) of bad variances signals a failure
+ #define GPS_CHECK_FAIL_ITERATION_MAX 3 // 1 second (ie. 10 iterations at 10hz) of bad variances signals a failure
 #endif
 
 #ifndef GPS_CHECK_BACK_ITERATION_MAX

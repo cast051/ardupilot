@@ -34,7 +34,7 @@ void NavEKF2_core::controlMagYawReset()
     Vector3f deltaRotVecTemp;
     Quaternion deltaQuatTemp;
 
-    bool flightResetAllowed = false;
+    // bool flightResetAllowed = false;
     bool initialResetAllowed = false;
     if (!finalInflightYawInit) {
         // Use a quaternion division to calculate the delta quaternion between the rotation at the current and last time
@@ -48,7 +48,7 @@ void NavEKF2_core::controlMagYawReset()
         bool angRateOK = deltaRotVecTemp.length() < 0.1745f;
 
         initialResetAllowed = angRateOK;
-        flightResetAllowed = angRateOK && !onGround;
+        // flightResetAllowed = angRateOK && !onGround;
 
     }
 
