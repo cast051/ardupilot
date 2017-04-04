@@ -496,6 +496,7 @@ AP_GPS::update(void)
             }
         } else {
             _get_init_error_gps_rtk = false;
+            memset(&gps_rtk_error, 0, sizeof(gps_rtk_error));
         }
     }
 
