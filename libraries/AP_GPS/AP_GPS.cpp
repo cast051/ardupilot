@@ -476,9 +476,9 @@ AP_GPS::update(void)
             }
             if (!_get_init_error_gps_rtk && state[1].status == GPS_OK_FIX_3D_RTK && state[0].status >= GPS_OK_FIX_3D) {
                 _get_init_error_gps_rtk = true;
-                gps_rtk_error.lat_error = state[1].location.lat - state[0].location.lat;
-                gps_rtk_error.lng_error = state[1].location.lng - state[0].location.lng;
-                gps_rtk_error.alt_error = state[1].location.alt - state[0].location.alt;
+                // gps_rtk_error.lat_error = state[1].location.lat - state[0].location.lat;
+                // gps_rtk_error.lng_error = state[1].location.lng - state[0].location.lng;
+                // gps_rtk_error.alt_error = state[1].location.alt - state[0].location.alt;
                 char buffer[64];
                 hal.util->snprintf(buffer, sizeof(buffer),
                  "AP_GPS->alt_error is %d",
