@@ -201,7 +201,8 @@ enum AutoMode {
     Auto_Circle,
     Auto_Spline,
     Auto_NavGuided,
-    Auto_Loiter
+    Auto_Loiter,
+    Auto_Brake
 };
 
 // Guided modes

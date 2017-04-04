@@ -91,6 +91,9 @@ void Copter::auto_run()
     case Auto_Loiter:
         auto_loiter_run();
         break;
+    case Auto_Brake:
+        auto_brake_run();
+        break;
     }
 }
 
@@ -549,6 +552,72 @@ bool Copter::auto_loiter_start()
 
     return true;
 }
+
+bool Copter::auto_brake_start()
+{
+    if (position_ok()) {
+
+        // set desired acceleration to zero
+        wp_nav.clear_pilot_desired_acceleration();
+
+        // set target to current position
+        wp_nav.init_brake_target(BRAKE_MODE_DECEL_RATE);
+
+        // initialize vertical speed and acceleration
+        pos_control.set_speed_z(BRAKE_MODE_SPEED_Z, BRAKE_MODE_SPEED_Z);
+        pos_control.set_accel_z(BRAKE_MODE_DECEL_RATE);
+
+        // initialise position and desired velocity
+        if (!pos_control.is_active_z()) {
+            pos_control.set_alt_target_to_current_alt();
+            pos_control.set_desired_velocity_z(inertial_nav.get_velocity_z());
+        }
+        set_auto_yaw_mode(AUTO_YAW_HOLD);
+        return true;
+        auto_mode = Auto_Brake;
+    } else {
+        return false;
+    }
+}
+
+void Copter::auto_brake_run()
+{
+    // if not auto armed set throttle to zero and exit immediately
+    if (!motors.armed() || !ap.auto_armed || !motors.get_interlock()) {
+        wp_nav.init_brake_target(BRAKE_MODE_DECEL_RATE);
+        motors.set_desired_spool_state(AP_Motors::DESIRED_SPIN_WHEN_ARMED);
+        // multicopters do not stabilize roll/pitch/yaw when disarmed
+        attitude_control.set_throttle_out_unstabilized(0,true,g.throttle_filt);
+        pos_control.relax_alt_hold_controllers(0.0f);
+        return;
+    }
+
+    // relax stop target if we might be landed
+    if (ap.land_complete_maybe) {
+        wp_nav.loiter_soften_for_landing();
+    }
+
+    // if landed immediately disarm
+    if (ap.land_complete) {
+        init_disarm_motors();
+    }
+
+    // set motors to full range
+    motors.set_desired_spool_state(AP_Motors::DESIRED_THROTTLE_UNLIMITED);
+
+    // run brake controller
+    wp_nav.update_brake(ekfGndSpdLimit, ekfNavVelGainScaler);
+
+    // call attitude controller
+    attitude_control.input_euler_angle_roll_pitch_euler_rate_yaw(wp_nav.get_roll(), wp_nav.get_pitch(), 0.0f, get_smoothing_gain());
+
+    // body-frame rate controller is run directly from 100hz loop
+
+    // update altitude target and call position controller
+    pos_control.set_alt_target_from_climb_rate_ff(0.0f, G_Dt, false);
+    pos_control.update_z_controller();
+}
+
 
 // auto_loiter_run - loiter in AUTO flight mode
 //      called by auto_run at 100hz or more

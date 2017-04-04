@@ -1141,6 +1141,8 @@ private:
     void init_capabilities(void);
     void dataflash_periodic(void);
     void accel_cal_update(void);
+    bool auto_brake_start(void);
+    void auto_brake_run(void);
 
 public:
     void mavlink_delay_cb();

@@ -29,14 +29,20 @@ void Copter::gps_check_armed()
 			gps_check_state.fail_count++;
 			if (gps_check_state.fail_count > GPS_CHECK_FAIL_ITERATION_MAX)
 			{
-				gcs_send_text(MAV_SEVERITY_CRITICAL,"GPS Glitch detected");
+				gcs_send_text(MAV_SEVERITY_CRITICAL,"GPS_CHECK:GPS Glitch detected and Processing");
 				gps_check_state.bad_variance = true;
+				mission.stop(); //stop mission runing.
 				if (control_mode == AUTO) {
+					if (auto_mode == Auto_Loiter)
+					{
+						 wp_nav.init_loiter_target();
+
+					} else {
+						auto_brake_start();
+					}
 					failsafe.gps = true;
-					mission.stop(); //stop mission runing.
-					auto_loiter_start(); //start auto loiter
+					// auto_loiter_start(); //start auto loiter
 					Log_Write_Error(ERROR_SUBSYSTEM_GPS, ERROR_CODE_FAILSAFE_OCCURRED);
-					gcs_send_text(MAV_SEVERITY_CRITICAL,"GPS Glitch Occurred Process done");
 					//set EK2_ALT_SOURCE as 0, use baro for alt control.
 					enum ap_var_type var_type;
 					// set parameter
@@ -59,7 +65,7 @@ void Copter::gps_check_armed()
 
 	if (gps_check_state.bad_variance && !gps_check_state.rtk_gone) {
 		if (gps_backnormal()) {
-			gcs_send_text(MAV_SEVERITY_CRITICAL,"RTK back resume mission");
+			gcs_send_text(MAV_SEVERITY_CRITICAL,"GPS_CHECK:RTK back resume mission");
 			mission.resume();
 			enum ap_var_type var_type;
 			// set parameter
@@ -79,7 +85,7 @@ void Copter::gps_check_armed()
 		} else {
 			gps_check_state.back_count++;
 			if (gps_check_state.back_count > GPS_CHECK_BACK_ITERATION_MAX) {
-				gcs_send_text(MAV_SEVERITY_CRITICAL,"RTK Gone");
+				gcs_send_text(MAV_SEVERITY_CRITICAL,"GPS_CHECK:RTK Gone");
 				gps_check_state.rtk_gone = true;
 			}
 		}

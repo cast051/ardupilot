@@ -467,7 +467,7 @@ AP_GPS::update(void)
             if (i == primary_instance) {
                 continue;
             }
-            if (state[0].status > state[1].status) {
+            if (state[0].status > state[1].status && !_initial_switch_gps_rtk_flag) {
                 // we have a higher status lock, change GPS
                 primary_instance = 0;
                 _initial_switch_gps_rtk_flag = true;
@@ -491,10 +491,11 @@ AP_GPS::update(void)
                 {
                     primary_instance = 1;
                     _initial_switch_gps_rtk_flag = false;
-                    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_CRITICAL,"AP_GPS RTK back in AP_GPS");
+                    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_CRITICAL,"AP_GPS:RTK back in AP_GPS");
                 }
             }
         } else {
+            _initial_switch_gps_rtk_flag = false;
             _get_init_error_gps_rtk = false;
             memset(&gps_rtk_error, 0, sizeof(gps_rtk_error));
         }
