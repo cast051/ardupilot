@@ -333,8 +333,8 @@ void NOINLINE Copter::send_nav_controller_output(mavlink_channel_t chan)
         targets.y / 1.0e2f,
         targets.z / 1.0e2f,
         wp_bearing / 1.0e2f,
-        wp_distance / 1.0e2f,
-        pos_control.get_alt_error() / 1.0e2f,
+        wp_distance,
+        pos_control.get_alt_error(),
         0,
         0);
 }
