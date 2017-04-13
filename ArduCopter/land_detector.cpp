@@ -99,8 +99,12 @@ void Copter::set_land_complete(bool b)
 
     if(b){
         Log_Write_Event(DATA_LAND_COMPLETE);
+        gcs_send_text(MAV_SEVERITY_CRITICAL,"DATA_LAND_COMPLETE");
+
     } else {
         Log_Write_Event(DATA_NOT_LANDED);
+        gcs_send_text(MAV_SEVERITY_CRITICAL,"DATA_NOT_LANDED");
+
     }
     ap.land_complete = b;
 
@@ -121,6 +125,7 @@ void Copter::set_land_complete_maybe(bool b)
         return;
 
     if (b) {
+        gcs_send_text(MAV_SEVERITY_CRITICAL,"DATA_LAND_COMPLETE_MAYBE");
         Log_Write_Event(DATA_LAND_COMPLETE_MAYBE);
     }
     ap.land_complete_maybe = b;
