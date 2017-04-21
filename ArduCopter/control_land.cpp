@@ -172,7 +172,8 @@ void Copter::land_run_vertical_control(bool pause_descent)
 #else
     bool doing_precision_landing = false;
 #endif
-
+    static int temp_print_num = 0;
+    temp_print_num++;
     // compute desired velocity
     const float precland_acceptable_error = 15.0f;
     const float precland_min_descent_speed = 10.0f;
@@ -192,14 +193,21 @@ void Copter::land_run_vertical_control(bool pause_descent)
 
         // Compute a vertical velocity demand such that the vehicle approaches LAND_START_ALT. Without the below constraint, this would cause the vehicle to hover at LAND_START_ALT.
         cmb_rate = AC_AttitudeControl::sqrt_controller(LAND_START_ALT-alt_above_ground, g.p_alt_hold.kP(), pos_control.get_accel_z());
-
+        if (temp_print_num % 100 == 0)
+        {
+            gcs_send_text_fmt(MAV_SEVERITY_CRITICAL,"control_land for sqrt_controller is cmb_rate is %lf", (double)cmb_rate);
+        }
         // Constrain the demanded vertical velocity so that it is between the configured maximum descent speed and the configured minimum descent speed.
         cmb_rate = constrain_float(cmb_rate, max_land_descent_velocity, -abs(g.land_speed));
 
-        if (doing_precision_landing && rangefinder_alt_ok() && rangefinder_state.alt_cm > 35.0f && rangefinder_state.alt_cm < 200.0f) {
+        if (doing_precision_landing && current_loc.alt > 35.0f && current_loc.alt < 200.0f) {
             float max_descent_speed = abs(g.land_speed)/2.0f;
             float land_slowdown = MAX(0.0f, pos_control.get_horizontal_error()*(max_descent_speed/precland_acceptable_error));
             cmb_rate = MIN(-precland_min_descent_speed, -max_descent_speed+land_slowdown);
+        }
+        if (temp_print_num % 100 == 0)
+        {
+            gcs_send_text_fmt(MAV_SEVERITY_CRITICAL,"control_land is end is cmb_rate is %lf", (double)cmb_rate);
         }
     }
 
