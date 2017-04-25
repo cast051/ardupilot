@@ -129,6 +129,8 @@ public:
         uint32_t last_gps_time_ms;          ///< the system time we got the last GPS timestamp, milliseconds
         bool have_heading:1;                 ///< does the GPS give heading?
         float heading;                      ///< the heading of the copter.
+        float diffage;
+        uint8_t origin_status;
     };
 
     struct s_gps_rtk_error{
@@ -334,6 +336,22 @@ public:
     }
     float get_heading(void) const {
         return  heading(primary_instance);
+    }
+
+    float get_diffage(void) const {
+        return diffage(primary_instance);
+    }
+
+    float diffage(uint8_t instance) const {
+        return state[instance].diffage;
+    }
+
+    uint8_t get_origin_status(void) const {
+        return origin_status(primary_instance);
+    }
+
+    uint8_t origin_status(uint8_t instance) const {
+        return state[instance].origin_status;
     }
 
     bool have_heading(void) const {

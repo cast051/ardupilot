@@ -725,7 +725,8 @@ void DataFlash_Class::Log_Write_GPS(const AP_GPS &gps, uint8_t i, uint64_t time_
         ground_speed  : gps.ground_speed(i),
         ground_course : gps.ground_course(i),
         vel_z         : gps.velocity(i).z,
-        used          : (uint8_t)(gps.primary_sensor() == i)
+        used          : (uint8_t)(gps.primary_sensor() == i),
+        heading       : gps.get_heading()
     };
     WriteBlock(&pkt, sizeof(pkt));
 
@@ -742,7 +743,9 @@ void DataFlash_Class::Log_Write_GPS(const AP_GPS &gps, uint8_t i, uint64_t time_
         vacc          : (uint16_t)(vacc*100),
         sacc          : (uint16_t)(sacc*100),
         have_vv       : (uint8_t)gps.have_vertical_velocity(i),
-        sample_ms     : gps.last_message_time_ms(i)
+        sample_ms     : gps.last_message_time_ms(i),
+        diffage       : gps.get_diffage(),
+        origin_status : gps.get_origin_status()
     };
     WriteBlock(&pkt2, sizeof(pkt2));
 }

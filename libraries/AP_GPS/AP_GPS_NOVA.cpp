@@ -203,6 +203,7 @@ AP_GPS_NOVA::process_message(void)
         state.location.lat = (int32_t) (bestposu.lat*1e7);
         state.location.lng = (int32_t) (bestposu.lng*1e7);
         state.location.alt = (int32_t) (bestposu.hgt*1e2);
+        state.diffage = bestposu.diffage;
 
         state.num_sats = bestposu.svsused;
 
@@ -213,6 +214,7 @@ AP_GPS_NOVA::process_message(void)
 
         if (bestposu.solstat == 0) // have a solution
         {
+            state.origin_status = bestposu.postype;
             switch (bestposu.postype)
             {
                 case 16:
