@@ -43,7 +43,8 @@ AP_GPS_NOVA::AP_GPS_NOVA(AP_GPS &_gps, AP_GPS::GPS_State &_state,
                        AP_HAL::UARTDriver *_port) :
     AP_GPS_Backend(_gps, _state, _port),
     _new_position(0),
-    _new_speed(0)
+    _new_speed(0),
+    _new_heading(0)
 {
     nova_msg.nova_state = nova_msg_parser::PREAMBLE1;
 
@@ -287,24 +288,41 @@ AP_GPS_NOVA::process_message(void)
     if (messageid == 971) //HEADIDNG
     {
         const HEADING &HEADINGU = nova_msg.data.HEADINGU;
+        state.heading = HEADINGU.heading;
+        state.state_second = HEADINGU.postype;
+        if (HEADINGU.solstat == 0)
+        {
+            switch (HEADINGU.postype)
+            {
+                case 32: // l1 float
+                case 33: // iono float
+                case 34: // narrow float
+                case 48: // l1 int
+                case 50: // narrow int
+                float ang = (float)(HEADINGU.heading);
+                _last_heading_time = nova_msg.header.nova_headeru.tow;
+                //if (!is_zero(ang))
+                {
+                    ang -= 90.0f;
+                    if (ang < 0.0f)
+                    {
+                        ang += 360.0f;
+                    }
+                    copter.curyaw = ang;
+                }
+                _new_heading = true;
 
-      		 float ang = (float)(HEADINGU.heading);
-		//if (!is_zero(ang))
-		{
-			ang -= 90.0f;
-			if (ang < 0.0f)
-			{
-				ang += 360.0f;
-			}
-			copter.curyaw = ang;
-		}
+            }
+        }
     }
 
     // ensure out position and velocity stay insync
-    if (_new_position && _new_speed && _last_vel_time == state.last_gps_time_ms) {
-        _new_speed = _new_position = false;
-        
-        return true;
+    if (_new_position && _new_speed && _new_heading && _last_vel_time == state.last_gps_time_ms) {
+        _new_speed = _new_position = _new_heading = false;
+        if (abs(_last_heading_time - _last_vel_time) < 1000U)
+        {
+            return true;
+        }
     }
     
     return false;

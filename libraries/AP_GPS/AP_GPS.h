@@ -131,6 +131,7 @@ public:
         float heading;                      ///< the heading of the copter.
         float diffage;
         uint8_t origin_status;
+        uint8_t state_second;
     };
 
     struct s_gps_rtk_error{

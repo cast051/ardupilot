@@ -49,8 +49,12 @@ private:
     bool            _new_position:1;
     // do we have new speed information?
     bool            _new_speed:1;
+    // do we have new heading information?
+    bool            _new_heading:1;
     
     uint32_t        _last_vel_time;
+
+    uint32_t        _last_heading_time;
     
     uint8_t _init_blob_index = 0;
     uint32_t _init_blob_time = 0;
@@ -149,7 +153,7 @@ private:
     struct PACKED HEADING
     {
         uint32_t solstat;
-        uint32_t veltype;
+        uint32_t postype;
         float length;
         float heading;
         float pitch;
