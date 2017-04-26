@@ -750,11 +750,11 @@ Format characters in the format string for binary log messages
     { LOG_GPS_MSG, sizeof(log_GPS), \
       "GPS",  "QBIHBcLLefffBf", "TimeUS,Status,GMS,GWk,NSats,HDop,Lat,Lng,Alt,Spd,GCrs,VZ,U,HA" }, \
     { LOG_GPS2_MSG, sizeof(log_GPS), \
-      "GPS2", "QBIHBcLLefffB", "TimeUS,Status,GMS,GWk,NSats,HDop,Lat,Lng,Alt,Spd,GCrs,VZ,U" }, \
+      "GPS2", "QBIHBcLLefffBf", "TimeUS,Status,GMS,GWk,NSats,HDop,Lat,Lng,Alt,Spd,GCrs,VZ,U,HA" }, \
     { LOG_GPA_MSG,  sizeof(log_GPA), \
       "GPA",  "QCCCCBIfB", "TimeUS,VDop,HAcc,VAcc,SAcc,VV,SMS,DA,OS" }, \
     { LOG_GPA2_MSG, sizeof(log_GPA), \
-      "GPA2", "QCCCCBI", "TimeUS,VDop,HAcc,VAcc,SAcc,VV,SMS" }, \
+      "GPA2", "QCCCCBIfB", "TimeUS,VDop,HAcc,VAcc,SAcc,VV,SMS,DA,OS" }, \
     { LOG_IMU_MSG, sizeof(log_IMU), \
       "IMU",  "QffffffIIfBB",     "TimeUS,GyrX,GyrY,GyrZ,AccX,AccY,AccZ,ErrG,ErrA,Temp,GyHlt,AcHlt" }, \
     { LOG_MESSAGE_MSG, sizeof(log_Message), \
