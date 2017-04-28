@@ -51,6 +51,8 @@ private:
     bool            _new_speed:1;
     // do we have new heading information?
     bool            _new_heading:1;
+
+    uint8_t         _statea_second;
     
     uint32_t        _last_vel_time;
 

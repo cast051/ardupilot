@@ -216,47 +216,10 @@ AP_GPS_NOVA::process_message(void)
         if (bestposu.solstat == 0) // have a solution
         {
             state.origin_status = bestposu.postype;
-            switch (bestposu.postype)
-            {
-                case 16:
-                    state.status = AP_GPS::GPS_OK_FIX_3D;
-                    break;
-                case 17: // psrdiff
-                case 18: // waas
-                case 20: // omnistar
-                case 68: // ppp_converg
-                case 69: // ppp
-                    state.status = AP_GPS::GPS_OK_FIX_3D_DGPS;
-                    break;
-                case 32: // l1 float
-                case 33: // iono float
-                case 34: // narrow float
-                case 48: // l1 int
-                case 50: // narrow int
-                    state.status = AP_GPS::GPS_OK_FIX_3D_RTK;
-					
-					if (!navfirstcheck)
-					{
-						if (++kkkk > 10)
-						{
-							copter.rtkstatuok = true;
-							//gps.SetGpsRtkError();
-							navfirstcheck = true;
-							kkkk = 0;
-						}
-					}
-                    break;
-                case 0: // NONE
-                case 1: // FIXEDPOS
-                case 2: // FIXEDHEIGHT
-                default:
-                    state.status = AP_GPS::NO_FIX;
-                    break;
-            }
         }
         else
         {
-            state.status = AP_GPS::NO_FIX;
+            state.origin_status = 0;
         }
         
         _new_position = true;
@@ -294,36 +257,101 @@ AP_GPS_NOVA::process_message(void)
         {
             switch (HEADINGU.postype)
             {
+                case 16:
+                    _statea_second = AP_GPS::GPS_OK_FIX_3D;
+                    break;
+                case 17: // psrdiff
+                case 18: // waas
+                case 20: // omnistar
+                case 68: // ppp_converg
+                case 69: // ppp
+                    _statea_second = AP_GPS::GPS_OK_FIX_3D_DGPS;
+                    break;
                 case 32: // l1 float
                 case 33: // iono float
                 case 34: // narrow float
                 case 48: // l1 int
                 case 50: // narrow int
-                float ang = (float)(HEADINGU.heading);
-                _last_heading_time = nova_msg.header.nova_headeru.tow;
-                //if (!is_zero(ang))
                 {
+                    float ang = (float)(HEADINGU.heading);
+                    _last_heading_time = nova_msg.header.nova_headeru.tow;
                     ang -= 90.0f;
                     if (ang < 0.0f)
                     {
                         ang += 360.0f;
                     }
                     copter.curyaw = ang;
+                    _statea_second = AP_GPS::GPS_OK_FIX_3D_RTK;
+                    _new_heading = true;
+                    break;
                 }
-                _new_heading = true;
-                break;
+                case 0: // NONE
+                case 1: // FIXEDPOS
+                case 2: // FIXEDHEIGHT
+                default:
+                    _statea_second = AP_GPS::NO_FIX;
+                    break;
             }
+        }
+        else
+        {
+            _statea_second = AP_GPS::NO_FIX;
         }
     }
 
     // ensure out position and velocity stay insync
-    if (_new_position && _new_speed && _new_heading && _last_vel_time == state.last_gps_time_ms) {
+    if (_new_position && _new_speed && _new_heading && _last_vel_time == state.last_gps_time_ms)
+    {
         _new_speed = _new_position = _new_heading = false;
-        if (abs(_last_heading_time - _last_vel_time) < 1000U) {
+        if (abs(_last_heading_time - _last_vel_time) < 500U)
+        {
+            switch (state.origin_status)
+            {
+                case 16:
+                    state.status = AP_GPS::GPS_OK_FIX_3D;
+                    break;
+                case 17: // psrdiff
+                case 18: // waas
+                case 20: // omnistar
+                case 68: // ppp_converg
+                case 69: // ppp
+                    state.status = AP_GPS::GPS_OK_FIX_3D_DGPS;
+                    break;
+                case 32: // l1 float
+                case 33: // iono float
+                case 34: // narrow float
+                case 48: // l1 int
+                case 50: // narrow int
+
+                    if (_statea_second == AP_GPS::GPS_OK_FIX_3D_RTK)
+                    {
+                        state.status = AP_GPS::GPS_OK_FIX_3D_RTK;
+                    }
+                    else
+                    {
+                        state.status = AP_GPS::GPS_OK_FIX_3D;
+                    }
+                    if (!navfirstcheck)
+                    {
+                        if (++kkkk > 10)
+                        {
+                            copter.rtkstatuok = true;
+                            //gps.SetGpsRtkError();
+                            navfirstcheck = true;
+                            kkkk = 0;
+                        }
+                    }
+                    break;
+                case 0: // NONE
+                case 1: // FIXEDPOS
+                case 2: // FIXEDHEIGHT
+                default:
+                    state.status = AP_GPS::NO_FIX;
+                    break;
+            }
             return true;
         }
     }
-    
     return false;
 }
 
