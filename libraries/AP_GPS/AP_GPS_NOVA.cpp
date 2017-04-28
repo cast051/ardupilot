@@ -319,8 +319,7 @@ AP_GPS_NOVA::process_message(void)
     // ensure out position and velocity stay insync
     if (_new_position && _new_speed && _new_heading && _last_vel_time == state.last_gps_time_ms) {
         _new_speed = _new_position = _new_heading = false;
-        if (abs(_last_heading_time - _last_vel_time) < 1000U)
-        {
+        if (abs(_last_heading_time - _last_vel_time) < 1000U) {
             return true;
         }
     }
