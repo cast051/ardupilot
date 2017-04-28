@@ -311,7 +311,7 @@ AP_GPS_NOVA::process_message(void)
                     copter.curyaw = ang;
                 }
                 _new_heading = true;
-
+                break;
             }
         }
     }
