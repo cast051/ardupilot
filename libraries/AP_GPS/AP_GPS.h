@@ -347,11 +347,11 @@ public:
         return state[instance].diffage;
     }
 
-    float get_state_second(void) const {
+    uint8_t get_state_second(void) const {
             return state_second(primary_instance);
     }
 
-    float state_second(uint8_t instance) const {
+    uint8_t state_second(uint8_t instance) const {
         return state[instance].state_second;
     }
 

@@ -745,7 +745,8 @@ void DataFlash_Class::Log_Write_GPS(const AP_GPS &gps, uint8_t i, uint64_t time_
         have_vv       : (uint8_t)gps.have_vertical_velocity(i),
         sample_ms     : gps.last_message_time_ms(i),
         diffage       : gps.get_diffage(),
-        origin_status : gps.get_origin_status()
+        origin_status : gps.get_origin_status(),
+        state_second  : gps.get_state_second()
     };
     WriteBlock(&pkt2, sizeof(pkt2));
 }
