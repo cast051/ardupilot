@@ -29,6 +29,14 @@
 #define GOBJECTN(v, pname, name, class) { AP_PARAM_GROUP, name, Parameters::k_param_ ## pname, (const void *)&copter.v, {group_info : class::var_info} }
 
 const AP_Param::Info Copter::var_info[] = {
+
+
+    GSCALAR(gesture_target_yaw, "TARGET_YAW",   0),
+    GSCALAR(gesture_target_roll, "TARGET_ROLL",   0),
+    GSCALAR(gesture_target_pitch, "TARGET_PITCH",   0),
+    GSCALAR(gesture_target_alt, "TARGET_ALT",   500),
+
+
     // @Param: SYSID_SW_MREV
     // @DisplayName: Eeprom format version number
     // @Description: This value is incremented when changes are made to the eeprom format

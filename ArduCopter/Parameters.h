@@ -366,11 +366,21 @@ public:
         k_param_arming, // 252  - AP_Arming
         k_param_DataFlash = 253, // 253 - Logging Group
 
+
+        k_param_gesture_target_yaw=256,
+        k_param_gesture_target_roll,
+        k_param_gesture_target_pitch,
+        k_param_gesture_target_alt,
         // 254,255: reserved
 
         // the k_param_* space is 9-bits in size
         // 511: reserved
     };
+
+    AP_Int16        gesture_target_yaw;
+    AP_Int16        gesture_target_roll;
+    AP_Int16        gesture_target_pitch;
+    AP_Int16        gesture_target_alt;
 
     AP_Int16        format_version;
     AP_Int8         software_type;

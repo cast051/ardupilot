@@ -1,5 +1,4 @@
 #include "Copter.h"
-
 /*
  * Init and run calls for gesture flight mode
  */
@@ -55,14 +54,15 @@ void Copter::gesture_run()
         update_simple_mode();
 
         // process pilot's roll and pitch input
-        wp_nav->set_pilot_desired_acceleration(channel_roll->get_control_in(), channel_pitch->get_control_in());
+         wp_nav->set_pilot_desired_acceleration(channel_roll->get_control_in(), channel_pitch->get_control_in());//imark-roll-pitch
+        //wp_nav->set_pilot_desired_acceleration(1500, channel_pitch->get_control_in());
 
         // get pilot's desired yaw rate
-        target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in());
+        target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in());//imark-yaw
 
         // get pilot desired climb rate
-//        target_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
-        target_climb_rate = get_pilot_desired_climb_rate(0);
+        // target_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());//imark-alt
+        target_climb_rate = get_pilot_desired_climb_rate(g.gesture_target_alt);
 
         target_climb_rate = constrain_float(target_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
     } else {
@@ -174,7 +174,8 @@ void Copter::gesture_run()
         wp_nav->update_loiter(ekfGndSpdLimit, ekfNavVelGainScaler);
 
         // call attitude controller
-        attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(wp_nav->get_roll(), wp_nav->get_pitch(), target_yaw_rate, get_smoothing_gain());
+//        attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(wp_nav->get_roll(), wp_nav->get_pitch(), target_yaw_rate, get_smoothing_gain());
+        attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(g.gesture_target_roll, g.gesture_target_pitch, g.gesture_target_yaw, get_smoothing_gain());
 
         // adjust climb rate using rangefinder
         if (rangefinder_alt_ok()) {
