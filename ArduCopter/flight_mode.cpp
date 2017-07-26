@@ -74,7 +74,7 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
             break;
 
         case SPORT:
-            success = sport_init(ignore_checks);
+            success = gesture_init(ignore_checks);
             break;
 
         case FLIP:
@@ -211,7 +211,7 @@ void Copter::update_flight_mode()
             break;
 
         case SPORT:
-            sport_run();
+            gesture_run();
             break;
 
         case FLIP:

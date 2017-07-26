@@ -108,6 +108,7 @@ ArduCopter/control_brake.cpp
 ArduCopter/control_circle.cpp
 ArduCopter/control_drift.cpp
 ArduCopter/control_flip.cpp
+ArduCopter/control_gesture.cpp
 ArduCopter/control_guided.cpp
 ArduCopter/control_guided_nogps.cpp
 ArduCopter/control_land.cpp
