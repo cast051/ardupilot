@@ -97,8 +97,6 @@ void Copter::loiter_run()
 
         // get pilot desired climb rate
         target_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
-        //target_climb_rate = get_pilot_desired_climb_rate(g.gesture_target_alt);
-
         target_climb_rate = constrain_float(target_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
     } else {
         // clear out pilot desired acceleration in case radio failsafe event occurs and we do not switch to RTL for some reason
