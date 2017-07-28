@@ -30,12 +30,18 @@
 
 const AP_Param::Info Copter::var_info[] = {
 
+    // @Param: GESTURE_TARGET_
+    // @DisplayName: gesture control command
+    // @Description: This value control rotate using gesture
+    // @User: Advanced
+    // @ReadOnly: True
+    GSCALAR(gesture_target_yaw, "GEST_TARGET_YAW",   0),
 
-    GSCALAR(gesture_target_yaw, "TARGET_YAW",   0),
-    GSCALAR(gesture_target_roll, "TARGET_ROLL",   0),
-    GSCALAR(gesture_target_pitch, "TARGET_PITCH",   0),
-    GSCALAR(gesture_target_alt, "TARGET_ALT",   500),
+    GSCALAR(gesture_target_roll, "GEST_TARGET_ROLL",   0),
 
+    GSCALAR(gesture_target_pitch, "GEST_TARGET_PITCH",   0),
+
+    GSCALAR(gesture_target_alt, "GEST_TARGET_ALT",   500),
 
     // @Param: SYSID_SW_MREV
     // @DisplayName: Eeprom format version number
