@@ -905,6 +905,7 @@ private:
     bool landing_with_GPS();
     bool loiter_init(bool ignore_checks);
     void loiter_run();
+    void gesture_command();
     bool gesture_init(bool ignore_checks);
     void gesture_run();
 #if PRECISION_LANDING == ENABLED

@@ -155,7 +155,8 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     SCHED_TASK(userhook_SuperSlowLoop, 1,   75),
 #endif
     SCHED_TASK(button_update,          5,    100),
-    SCHED_TASK(stats_update,           1,    100),
+    SCHED_TASK(stats_update,           1,    100),    
+    SCHED_TASK(gesture_command,      100,    100),
 };
 
 

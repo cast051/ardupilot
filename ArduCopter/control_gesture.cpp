@@ -1,8 +1,18 @@
 #include "Copter.h"
+
+
+//receive gesture command
+void Copter::gesture_command()
+{
+    if(control_mode==SPORT){
+
+    }
+
+}
+
 /*
  * Init and run calls for gesture flight mode
  */
-
 // gesture_init - initialise loiter controller
 bool Copter::gesture_init(bool ignore_checks)
 {
@@ -62,8 +72,8 @@ void Copter::gesture_run()
         target_yaw_rate = get_pilot_desired_yaw_rate(g.gesture_target_yaw);//imark-yaw
 
         // get pilot desired climb rate
-        // target_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());//imark-alt
-        target_climb_rate = get_pilot_desired_climb_rate(g.gesture_target_alt);
+        // target_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
+        target_climb_rate = get_pilot_desired_climb_rate(g.gesture_target_alt);//imark-alt
 
         target_climb_rate = constrain_float(target_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
     } else {
