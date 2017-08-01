@@ -160,7 +160,11 @@ void AP_SerialManager::init()
     if (state[0].uart == nullptr) {
         init_console();
     }
-    
+    //initialise serial port 4
+    state[4].uart->begin(57600,
+                         128,
+                         128);
+
     // initialise serial ports
     for (uint8_t i=1; i<SERIALMANAGER_NUM_PORTS; i++) {
         if (state[i].uart != nullptr) {

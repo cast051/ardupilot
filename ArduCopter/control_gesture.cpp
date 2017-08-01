@@ -4,10 +4,105 @@
 //receive gesture command
 void Copter::gesture_command()
 {
+    gest_commmand_type gest_command;
+    int16_t gest_command_value , nbytes=hal.uartE->available();
+    uint8_t gest_recieve_buf[50] , i=0 , check_add=0;
+    static bool gesture_stop_flag=true;
+
     if(control_mode==SPORT){
 
-    }
+        uint32_t timer = micros();
 
+        //if last receive command more than 1s ,then make ardupilot stop
+        if((timer-last_gesture_time)>GESTURE_MAX_RECEIVE_TIM){
+            //clear gesture value
+            clear_gesture_value();
+            if(gesture_stop_flag==true)
+            {
+                gesture_stop_flag=false;
+                gcs().send_text(MAV_SEVERITY_CRITICAL,"gest   stop");
+            }
+        }
+
+        //read radio data
+        while (nbytes-->0)
+            gest_recieve_buf[i++]=hal.uartE->read();
+
+        //check whether the data is valid
+        if(gest_recieve_buf[0]==0x66 && gest_recieve_buf[1]==0x88){
+
+//            //add check num
+//            for(i=0;i<5;i++)
+//                check_add+=gest_recieve_buf[i];
+
+//            //check code
+//            if(check_add!=gest_recieve_buf[5])
+//                return;
+
+            gesture_stop_flag=true;
+
+            //command type
+            gest_command=(gest_commmand_type)gest_recieve_buf[2];
+
+            //action value
+            gest_command_value=(gest_recieve_buf[3]<<8)|gest_recieve_buf[4];
+
+            //clear gesture value
+            clear_gesture_value();
+
+            //follow the comman then take action
+            switch(gest_command){
+
+            case GEST_COMMAND_LEFT:
+                 g.gesture_target_roll = gest_command_value;
+                 gcs().send_text(MAV_SEVERITY_CRITICAL,"gest   left");
+                break;
+            case GEST_COMMAND_RIGHT:
+                g.gesture_target_roll = -gest_command_value;
+                gcs().send_text(MAV_SEVERITY_CRITICAL,"gest   right");
+                break;
+            case GEST_COMMAND_UP:
+                g.gesture_target_alt = gest_command_value;
+                gcs().send_text(MAV_SEVERITY_CRITICAL,"gest   up");
+                break;
+            case GEST_COMMAND_DOWN:
+                g.gesture_target_alt = -gest_command_value;
+                gcs().send_text(MAV_SEVERITY_CRITICAL,"gest   down");
+                break;
+            case GEST_COMMAND_FORWARD:
+                g.gesture_target_pitch = gest_command_value;
+               gcs().send_text(MAV_SEVERITY_CRITICAL,"gest   forward");
+                break;
+            case GEST_COMMAND_BACK:
+                g.gesture_target_pitch = -gest_command_value;
+                gcs().send_text(MAV_SEVERITY_CRITICAL,"gest   back");
+                break;
+            case GEST_COMMAND_ROTATE_Z:
+                g.gesture_target_yaw = gest_command_value;
+                gcs().send_text(MAV_SEVERITY_CRITICAL,"gest   rotate_z");
+                break;
+            case GEST_COMMAND_ROTATE_F:
+                g.gesture_target_yaw = -gest_command_value;
+                gcs().send_text(MAV_SEVERITY_CRITICAL,"gest   rotate_f");
+                break;
+            }
+
+            //record time
+            last_gesture_time=timer;
+        }
+        else{
+            return;
+        }
+    }
+}
+
+//clear gesture valure
+void Copter::clear_gesture_value()
+{
+    g.gesture_target_roll  =0;
+    g.gesture_target_pitch =0;
+    g.gesture_target_alt   =500;
+    g.gesture_target_yaw   =0;
 }
 
 /*
@@ -73,7 +168,7 @@ void Copter::gesture_run()
 
         // get pilot desired climb rate
         // target_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
-        target_climb_rate = get_pilot_desired_climb_rate(g.gesture_target_alt);//imark-alt
+        target_climb_rate = get_pilot_desired_climb_rate(500+g.gesture_target_alt);//imark-alt
 
         target_climb_rate = constrain_float(target_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
     } else {

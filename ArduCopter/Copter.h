@@ -164,6 +164,9 @@ public:
     };
 
 private:
+
+    uint32_t  last_gesture_time;
+
     // key aircraft parameters passed to multiple libraries
     AP_Vehicle::MultiCopter aparm;
 
@@ -905,6 +908,7 @@ private:
     bool landing_with_GPS();
     bool loiter_init(bool ignore_checks);
     void loiter_run();
+    void clear_gesture_value();
     void gesture_command();
     bool gesture_init(bool ignore_checks);
     void gesture_run();

@@ -10,6 +10,22 @@
 #define ENABLE ENABLED
 #define DISABLE DISABLED
 
+//gesture max not receive time (us)
+#define GESTURE_MAX_RECEIVE_TIM  1000000
+
+//gesture comman type
+enum gest_commmand_type {
+    GEST_COMMAND_LEFT=          1,
+    GEST_COMMAND_RIGHT=         2,
+    GEST_COMMAND_UP=            3,
+    GEST_COMMAND_DOWN=          4,
+    GEST_COMMAND_FORWARD=       5,
+    GEST_COMMAND_BACK=          6,
+    GEST_COMMAND_ROTATE_Z=      7,
+    GEST_COMMAND_ROTATE_F=      8,
+};
+
+
 // Autopilot Yaw Mode enumeration
 enum autopilot_yaw_mode {
     AUTO_YAW_HOLD =             0,  // pilot controls the heading
