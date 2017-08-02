@@ -2,7 +2,7 @@
 
 #include "ap_version.h"
 
-#define THISFIRMWARE "APM:Copter  liujinwei V1.0.0"
+#define THISFIRMWARE "APM:Copter  liujinwei -V1.0.0"
 #define FIRMWARE_VERSION 3,6,0,FIRMWARE_VERSION_TYPE_DEV
 
 #ifndef GIT_VERSION
