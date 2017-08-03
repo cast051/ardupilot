@@ -10,8 +10,8 @@
 #define ENABLE ENABLED
 #define DISABLE DISABLED
 
-//gesture max not receive time (us)
-#define GESTURE_MAX_RECEIVE_TIM  1000000
+//gesture max not receive time (ms)
+#define GESTURE_MAX_RECEIVE_TIM  1000
 
 //gesture comman type
 enum gest_commmand_type {

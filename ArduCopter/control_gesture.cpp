@@ -11,7 +11,7 @@ void Copter::gesture_command()
 
     if(control_mode==SPORT){
 
-        uint32_t timer = micros();
+        uint32_t timer = millis();
 
         //if last receive command more than 1s ,then make ardupilot stop
         if((timer-last_gesture_time)>GESTURE_MAX_RECEIVE_TIM){
