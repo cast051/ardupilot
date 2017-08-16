@@ -8,6 +8,7 @@ void Copter::gesture_command()
     int16_t gest_command_value , nbytes=hal.uartE->available();
     uint8_t gest_recieve_buf[50] , i=0 , check_add=0;
     static bool gesture_stop_flag=true;
+    static uint32_t  last_gesture_time=millis();
 
     if(control_mode==SPORT){
 
@@ -15,11 +16,12 @@ void Copter::gesture_command()
 
         //if last receive command more than 1s ,then make ardupilot stop
         if((timer-last_gesture_time)>GESTURE_MAX_RECEIVE_TIM){
-            //clear gesture value
-            clear_gesture_value();
+
             if(gesture_stop_flag==true)
             {
                 gesture_stop_flag=false;
+                //clear gesture value
+                clear_gesture_value();
                 gcs().send_text(MAV_SEVERITY_CRITICAL,"gest   stop");
             }
         }
@@ -31,13 +33,13 @@ void Copter::gesture_command()
         //check whether the data is valid
         if(gest_recieve_buf[0]==0x66 && gest_recieve_buf[1]==0x88){
 
-//            //add check num
-//            for(i=0;i<5;i++)
-//                check_add+=gest_recieve_buf[i];
+            //add check num
+            for(i=0;i<5;i++)
+                check_add+=gest_recieve_buf[i];
 
-//            //check code
-//            if(check_add!=gest_recieve_buf[5])
-//                return;
+            //check code
+            if(check_add!=gest_recieve_buf[5])
+                return;
 
             gesture_stop_flag=true;
 
@@ -101,7 +103,7 @@ void Copter::clear_gesture_value()
 {
     g.gesture_target_roll  =0;
     g.gesture_target_pitch =0;
-    g.gesture_target_alt   =500;
+    g.gesture_target_alt   =0;
     g.gesture_target_yaw   =0;
 }
 

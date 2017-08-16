@@ -165,8 +165,6 @@ public:
 
 private:
 
-    uint32_t  last_gesture_time;
-
     // key aircraft parameters passed to multiple libraries
     AP_Vehicle::MultiCopter aparm;
 
