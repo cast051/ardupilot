@@ -414,6 +414,19 @@ void DataFlash_Class::Log_Write_Baro(AP_Baro &baro, uint64_t time_us)
     }
 }
 
+//Write gesture control log
+void DataFlash_Class::Log_Write_Gesture(uint8_t command,uint16_t command_value)
+{
+    uint64_t time_us = AP_HAL::micros64();
+    struct log_GEST pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_GEST_MSG),
+        time_us      : time_us,
+        gest_command : command,
+        value        : command_value,
+    };
+    WriteBlock(&pkt, sizeof(pkt));
+}
+
 // Write an raw accel/gyro data packet
 void DataFlash_Class::Log_Write_IMU(const AP_InertialSensor &ins)
 {

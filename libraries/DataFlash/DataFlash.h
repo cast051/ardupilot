@@ -109,6 +109,7 @@ public:
 
     void StopLogging();
 
+    void Log_Write_Gesture(uint8_t command, uint16_t command_value);
     void Log_Write_Parameter(const char *name, float value);
     void Log_Write_GPS(const AP_GPS &gps, uint8_t instance, uint64_t time_us=0);
     void Log_Write_RFND(const RangeFinder &rangefinder);

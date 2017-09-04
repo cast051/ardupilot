@@ -75,6 +75,13 @@ struct PACKED log_Message {
     char msg[64];
 };
 
+struct PACKED log_GEST {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    uint8_t  gest_command;
+    uint32_t value;
+};
+
 struct PACKED log_IMU {
     LOG_PACKET_HEADER;
     uint64_t time_us;
@@ -1006,6 +1013,8 @@ Format characters in the format string for binary log messages
 
 // messages for more advanced boards
 #define LOG_EXTRA_STRUCTURES \
+    { LOG_GEST_MSG, sizeof(log_GEST), \
+      "GEST","QBH","TimeUS,Command,Value" }, \
     { LOG_IMU2_MSG, sizeof(log_IMU), \
       "IMU2",  IMU_FMT,     IMU_LABELS }, \
     { LOG_IMU3_MSG, sizeof(log_IMU), \
@@ -1185,6 +1194,7 @@ enum LogMessages {
     LOG_RCIN_MSG,
     LOG_RCOUT_MSG,
     LOG_RSSI_MSG,
+    LOG_GEST_MSG,
     LOG_IMU2_MSG,
     LOG_BARO_MSG,
     LOG_POWR_MSG,

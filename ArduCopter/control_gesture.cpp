@@ -4,14 +4,13 @@
 //receive gesture command
 void Copter::gesture_command()
 {
-    gest_commmand_type gest_command;
-    int16_t gest_command_value , nbytes=hal.uartE->available();
-    uint8_t gest_recieve_buf[50] , i=0 , check_add=0;
-    static bool gesture_stop_flag=true;
-    static uint32_t  last_gesture_time=millis();
-
     if(control_mode==SPORT){
 
+        gest_commmand_type gest_command;
+        int16_t gest_command_value , nbytes=hal.uartE->available();
+        uint8_t gest_recieve_buf[50] , i=0 , check_add=0;
+        static bool gesture_stop_flag=true;
+        static uint32_t  last_gesture_time=millis();
         uint32_t timer = millis();
 
         //if last receive command more than 1s ,then make ardupilot stop
@@ -88,7 +87,8 @@ void Copter::gesture_command()
                 gcs().send_text(MAV_SEVERITY_CRITICAL,"gest   rotate_f");
                 break;
             }
-
+            //write gesture to log
+            copter.DataFlash.Log_Write_Gesture(gest_command,gest_command_value);
             //record time
             last_gesture_time=timer;
         }
